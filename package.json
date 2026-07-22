@@ -35,7 +35,6 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "postinstall": "nuxt prepare",
     "preview": "nuxt preview",
     "prepublishOnly": "tsc"
   },
