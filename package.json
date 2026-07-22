@@ -1,0 +1,62 @@
+{
+  "name": "@verbatims/sdk",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for the Verbatims quotes API",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    },
+    "./nuxt": {
+      "import": "./nuxt/module.ts",
+      "types": "./nuxt/module.ts"
+    },
+    "./nuxt/module": {
+      "import": "./nuxt/module.ts",
+      "types": "./nuxt/module.ts"
+    },
+    "./nuxt/composables": {
+      "import": "./nuxt/composables.ts",
+      "types": "./nuxt/composables.ts"
+    }
+  },
+  "files": [
+    "src",
+    "nuxt",
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "tsc"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "peerDependencies": {
+    "nuxt": "^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "nuxt": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "nuxt": "^4.5.0",
+    "typescript": "^5.9.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rootasjey/verbatims-sdk.git"
+  },
+  "keywords": [
+    "verbatims",
+    "quotes",
+    "api",
+    "sdk"
+  ],
+  "license": "MIT"
+}

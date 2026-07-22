@@ -1,0 +1,6 @@
+export { QuotesResource } from './quotes'
+export { AuthorsResource } from './authors'
+export { ReferencesResource } from './references'
+export { TagsResource } from './tags'
+export { CollectionsResource } from './collections'
+export { SearchResource } from './search'
