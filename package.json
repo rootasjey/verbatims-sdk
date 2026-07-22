@@ -47,7 +47,11 @@
     }
   },
   "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "conventional-changelog-conventionalcommits": "^10.2.1",
     "nuxt": "^4.5.0",
+    "semantic-release": "^24.2.9",
     "typescript": "^5.9.0",
     "vitest": "^4.1.10"
   },
@@ -61,5 +65,11 @@
     "api",
     "sdk"
   ],
+  "overrides": {
+    "@semantic-release/npm": "^13.1.5"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT"
 }

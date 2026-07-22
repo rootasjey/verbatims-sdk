@@ -1,0 +1,23 @@
+{
+  "branches": ["main"],
+  "plugins": [
+    ["@semantic-release/commit-analyzer", {
+      "preset": "conventionalcommits",
+      "parserOpts": {
+        "headerPattern": "^[^a-zA-Z]*(\\w*)(?:\\(([\\w\\$\\.\\-\\* ]*)\\))?!?:\\s?(.*)$"
+      }
+    }],
+    ["@semantic-release/release-notes-generator", {
+      "preset": "conventionalcommits",
+      "parserOpts": {
+        "headerPattern": "^[^a-zA-Z]*(\\w*)(?:\\(([\\w\\$\\.\\-\\* ]*)\\))?!?:\\s?(.*)$"
+      }
+    }],
+    "@semantic-release/changelog",
+    "@semantic-release/npm",
+    ["@semantic-release/git", {
+      "assets": ["package.json", "package-lock.json", "CHANGELOG.md"]
+    }],
+    "@semantic-release/github"
+  ]
+}
