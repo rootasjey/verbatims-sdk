@@ -29,10 +29,14 @@
     "LICENSE"
   ],
   "scripts": {
+    "dev": "nuxt dev",
     "build": "tsc",
+    "build:demo": "nuxt build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "postinstall": "nuxt prepare",
+    "preview": "nuxt preview",
     "prepublishOnly": "tsc"
   },
   "dependencies": {
@@ -47,11 +51,18 @@
     }
   },
   "devDependencies": {
+    "@iconify-json/lucide": "^1.2.118",
+    "@iconify-json/radix-icons": "^1.2.6",
+    "@iconify-json/tabler": "^1.2.37",
+    "@nuxtjs/google-fonts": "^3.2.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
+    "@una-ui/nuxt": "^1.0.0-alpha.22",
+    "@unocss/nuxt": "^66.7.5",
     "conventional-changelog-conventionalcommits": "^10.2.1",
     "nuxt": "^4.5.0",
     "semantic-release": "^24.2.9",
+    "shiki": "^4.3.1",
     "typescript": "^5.9.0",
     "vitest": "^4.1.10"
   },
