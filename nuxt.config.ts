@@ -76,6 +76,6 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    preset: 'static',
+    preset: 'cloudflare-module',
   },
 })
