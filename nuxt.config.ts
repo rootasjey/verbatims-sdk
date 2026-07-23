@@ -67,6 +67,10 @@ export default defineNuxtConfig({
         { property: 'og:description', content: 'TypeScript SDK for the Verbatims quotes API.' },
         { name: 'twitter:card', content: 'summary_large_image' },
       ],
+      link: [
+        { rel: 'icon', href: '/images/favicon.ico' },
+        { rel: 'apple-touch-icon', href: '/images/icon-192.png' },
+      ],
       script: [
         {
           innerHTML: `(function(){try{var p=localStorage.getItem('verbatims-theme')||'dark';var t=p==='system'?(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'):p;document.documentElement.setAttribute('data-theme',t);document.documentElement.setAttribute('data-theme-preference',p);document.cookie='verbatims-theme='+p+';path=/;SameSite=Lax'}catch(e){}})()`,

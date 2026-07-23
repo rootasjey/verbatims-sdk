@@ -3,7 +3,7 @@
     <header class="sticky top-0 z-50 border-b border-[var(--c-border)] bg-[var(--c-bg)]/80 backdrop-blur-md">
       <div class="max-w-240 mx-auto px-5 h-14 flex items-center justify-between gap-4">
         <NuxtLink to="/" class="flex items-center gap-2 font-bold text-lg no-underline text-[var(--c-text)] hover:no-underline shrink-0">
-          <span class="font-heading font-bold tracking-tight">&commat;verbatims/sdk</span>
+          <img src="/images/icon-192.png" width="28" height="28" alt="Verbatims" class="shrink-0">
         </NuxtLink>
 
         <div class="flex items-center gap-1">
