@@ -2,10 +2,10 @@
   <div class="relative overflow-x-hidden">
     <section class="text-center px-5 pt-20 pb-12 max-w-240 mx-auto">
       <div class="animate-in" style="animation-delay: 0ms">
-        <div class="inline-flex items-center gap-1.5 bg-primary/10 text-sm font-semibold px-3.5 py-1.5 rounded-full mb-8 tracking-wide">
+        <a href="https://www.npmjs.com/package/@verbatims/sdk" target="_blank" class="inline-flex items-center gap-1.5 bg-primary/10 text-sm font-semibold px-3.5 py-1.5 rounded-full mb-8 tracking-wide no-underline hover:bg-primary/20 transition-colors">
           <span class="font-heading text-base font-bold tracking-tight">&commat;verbatims/sdk</span>
-          <span class="text-xs text-muted">v0.1.0</span>
-        </div>
+          <span class="text-xs text-muted">v{{ version }}</span>
+        </a>
         <h1 class="font-heading text-5xl md:text-6xl leading-tight tracking-tight mb-5 font-600">
           TypeScript SDK for the<br><span class="text-primary italic font-600">Verbatims</span> quotes API
         </h1>
@@ -67,6 +67,7 @@
 
 <script setup lang="ts">
 import { snippets } from '../composables/snippets'
+import { version } from '../../package.json'
 
 useHead({
   title: '@verbatims/sdk - Verbatims API TypeScript SDK',
