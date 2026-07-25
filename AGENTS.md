@@ -11,6 +11,8 @@
 - Commande de build : `npm run build:demo`
 - Le preset Nitro est `cloudflare-module` (configuré dans `nuxt.config.ts`)
 - Le déploiement est géré depuis le dashboard Cloudflare (connexion GitHub)
+- **Tout push sur `main` trigger un build Cloudflare Pages**, même les commits sans rapport avec l'app.
+- Pour éviter un build inutile, inclure `[skip ci]` ou `[ci skip]` dans le message de commit des changements qui ne touchent pas le dossier `app/` ou `nuxt.config.ts`.
 
 # SDK
 
