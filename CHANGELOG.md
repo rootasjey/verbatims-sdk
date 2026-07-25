@@ -1,3 +1,5 @@
+## [1.5.0](https://github.com/rootasjey/verbatims-sdk/compare/v1.4.0...v1.5.0) (2026-07-25)
+
 ## [1.4.0](https://github.com/rootasjey/verbatims-sdk/compare/v1.3.1...v1.4.0) (2026-07-23)
 
 ## [1.3.1](https://github.com/rootasjey/verbatims-sdk/compare/v1.3.0...v1.3.1) (2026-07-23)
