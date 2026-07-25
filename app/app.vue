@@ -100,14 +100,18 @@ function isActive(to: string) {
   --c-border: #1e1e22;
   --c-text: #e8e8e8;
   --c-muted: #6b6b7b;
+  --c-primary: #6266F1;
+  --c-accent: #FAA533;
 }
 
 [data-theme="light"] {
-  --c-bg: #f5f5f0;
+  --c-bg: #fafaf9;
   --c-surface: #ffffff;
   --c-border: #e5e5e0;
   --c-text: #1a1a1a;
   --c-muted: #8a8a9a;
+  --c-primary: #6266F1;
+  --c-accent: #FAA533;
 }
 
 *, *::before, *::after {
@@ -120,6 +124,11 @@ body {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
+}
+
+::selection {
+  background: #6266F1;
+  color: #ffffff;
 }
 
 .font-heading {
