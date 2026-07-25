@@ -6,6 +6,7 @@ on:
     paths:
       - 'src/**'
       - 'nuxt/**'
+      - 'packages/cli/**'
       - 'package.json'
       - 'tsconfig.json'
       - '.releaserc'
@@ -17,7 +18,7 @@ permissions:
   id-token: write
 
 jobs:
-  release:
+  release-sdk:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,3 +34,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  release-cli:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Publish CLI
+        run: |
+          npm version patch -w packages/cli --no-git-tag-version
+          npm publish -w packages/cli
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
