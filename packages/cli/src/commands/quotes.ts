@@ -4,6 +4,7 @@ import chalk from 'chalk'
 import { getClient } from '../utils/client.js'
 import { output, type Format } from '../utils/format.js'
 import { withSpinner } from '../utils/spinner.js'
+import { browse } from '../utils/browse.js'
 
 function getFormat(program: Command): Format {
   return (program.opts().format ?? 'table') as Format
@@ -118,5 +119,31 @@ export function registerQuotesCommand(program: Command) {
       const client = await getClient()
       await withSpinner('Deleting quote', () => client.quotes.delete(Number(id)))
       console.log(chalk.green(` Quote #${id} deleted`))
+    })
+
+  quotes
+    .command('browse')
+    .description('Browse quotes interactively')
+    .option('--language <lang>', 'Filter by language')
+    .option('--author <id>', 'Filter by author ID')
+    .option('--tag <name>', 'Filter by tag')
+    .option('--search <q>', 'Search in quote text')
+    .option('--sort-by <field>', 'Sort field')
+    .option('--sort-order <order>', 'Sort order (asc|desc)')
+    .action(async (options: Record<string, string>) => {
+      const client = await getClient()
+      const format = getFormat(program)
+      await browse(
+        (page) => client.quotes.list({
+          page,
+          language: options.language,
+          author_id: options.author ? Number(options.author) : undefined,
+          tag: options.tag,
+          search: options.search,
+          sort_by: options.sortBy,
+          sort_order: options.sortOrder as 'asc' | 'desc',
+        }),
+        format,
+      )
     })
 }

@@ -4,6 +4,7 @@ import chalk from 'chalk'
 import { getClient } from '../utils/client.js'
 import { output, type Format } from '../utils/format.js'
 import { withSpinner } from '../utils/spinner.js'
+import { browse } from '../utils/browse.js'
 
 function getFormat(program: Command): Format {
   return (program.opts().format ?? 'table') as Format
@@ -82,5 +83,19 @@ export function registerReferencesCommand(program: Command) {
       const { data } = await withSpinner('Updating reference', () => client.references.update(Number(id), data_ as any), format)
       console.log(chalk.green(' Reference updated'))
       output(data, format)
+    })
+
+  refs
+    .command('browse')
+    .description('Browse references interactively')
+    .option('--type <type>', 'Filter by type')
+    .option('--search <q>', 'Search references')
+    .action(async (options: Record<string, string>) => {
+      const client = await getClient()
+      const format = getFormat(program)
+      await browse(
+        (page) => client.references.list({ page, type: options.type, search: options.search }),
+        format,
+      )
     })
 }

@@ -3,6 +3,7 @@ import chalk from 'chalk'
 import { getClient } from '../utils/client.js'
 import { output, type Format } from '../utils/format.js'
 import { withSpinner } from '../utils/spinner.js'
+import { browse } from '../utils/browse.js'
 
 function getFormat(program: Command): Format {
   return (program.opts().format ?? 'table') as Format
@@ -25,5 +26,18 @@ export function registerSearchCommand(program: Command) {
       if (pagination && format !== 'json') {
         console.log(chalk.dim(`\nPage ${pagination.page}/${pagination.totalPages} — ${pagination.total} total`))
       }
+    })
+
+  program
+    .command('search-browse <query>')
+    .description('Browse search results interactively')
+    .option('--type <type>', 'Type to search: quotes|authors|references', 'quotes')
+    .action(async (query: string, options: Record<string, string>) => {
+      const client = await getClient()
+      const format = getFormat(program)
+      await browse(
+        (page) => client.search.query({ q: query, type: options.type as 'quotes' | 'authors' | 'references', page }),
+        format,
+      )
     })
 }

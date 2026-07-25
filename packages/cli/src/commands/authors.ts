@@ -4,6 +4,7 @@ import chalk from 'chalk'
 import { getClient } from '../utils/client.js'
 import { output, type Format } from '../utils/format.js'
 import { withSpinner } from '../utils/spinner.js'
+import { browse } from '../utils/browse.js'
 
 function getFormat(program: Command): Format {
   return (program.opts().format ?? 'table') as Format
@@ -77,5 +78,18 @@ export function registerAuthorsCommand(program: Command) {
       const { data } = await withSpinner('Updating author', () => client.authors.update(Number(id), data_ as any), format)
       console.log(chalk.green(' Author updated'))
       output(data, format)
+    })
+
+  authors
+    .command('browse')
+    .description('Browse authors interactively')
+    .option('--search <q>', 'Search authors')
+    .action(async (options: Record<string, string>) => {
+      const client = await getClient()
+      const format = getFormat(program)
+      await browse(
+        (page) => client.authors.list({ page, search: options.search }),
+        format,
+      )
     })
 }
