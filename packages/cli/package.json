@@ -1,6 +1,6 @@
 {
   "name": "@verbatims/cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CLI for the Verbatims quotes API",
   "type": "module",
   "bin": {
@@ -35,3 +35,4 @@
   },
   "license": "MIT"
 }
+
