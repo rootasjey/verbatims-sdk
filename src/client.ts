@@ -42,7 +42,9 @@ export class VerbatimsClient {
   }
 
   private buildUrl(path: string, params?: Record<string, unknown>): string {
-    const url = new URL(`${this.baseUrl}${path}`, 'http://localhost')
+    const base = this.baseUrl.startsWith('http') ? this.baseUrl : `http://localhost${this.baseUrl}`
+    const baseClean = base.endsWith('/') ? base.slice(0, -1) : base
+    const url = new URL(`${baseClean}${path}`)
     if (params) {
       for (const [key, value] of Object.entries(params)) {
         if (value !== undefined && value !== null) {
@@ -50,7 +52,7 @@ export class VerbatimsClient {
         }
       }
     }
-    return url.pathname + url.search
+    return url.href
   }
 
   private async request<T>(

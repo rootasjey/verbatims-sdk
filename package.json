@@ -2,7 +2,9 @@
   "name": "@verbatims/sdk",
   "version": "1.4.0",
   "description": "TypeScript SDK for the Verbatims quotes API",
+  "private": true,
   "type": "module",
+  "workspaces": ["packages/*"],
   "exports": {
     ".": {
       "import": "./src/index.ts",

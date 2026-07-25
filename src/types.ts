@@ -34,74 +34,82 @@ export interface ApiResponse<T = unknown> {
   pagination?: PaginationMeta
 }
 
-// --- API entity types (subset of shared types, inlined for portability) ---
+// --- API entity types ---
 
 export interface QuoteAuthor {
   id: number
   name: string
-  is_fictional?: boolean
+  fictional?: boolean
   image_url?: string | null
   description?: string | null
+  job?: string | null
 }
 
 export interface QuoteReferenceInfo {
   id: number
   name: string
-  primary_type?: string
+  type?: string
+}
+
+export interface QuoteStats {
+  views: number
+  likes: number
+  shares?: number
 }
 
 export interface QuoteWithRelations {
   id: number
-  name: string
+  content: string
   language: string
-  author_id?: number
-  reference_id?: number
-  status: string
-  views_count: number
-  likes_count: number
-  shares_count: number
-  is_featured?: boolean
-  created_at: string
-  updated_at: string
-  author?: QuoteAuthor
-  reference?: QuoteReferenceInfo
-  tags?: Array<{ id?: number; name: string; color?: string | null }>
+  stats?: QuoteStats
+  featured?: boolean
+  author?: QuoteAuthor | null
+  reference?: QuoteReferenceInfo | null
+  tags?: Array<{ id: number; name: string; color?: string | null }>
+  created_at: string | null
+  updated_at: string | null
+}
+
+export interface AuthorDates {
+  birth?: string | null
+  death?: string | null
+  birth_location?: string | null
+  death_location?: string | null
+}
+
+export interface AuthorStats {
+  views: number
+  likes: number
 }
 
 export interface Author {
   id: number
   name: string
-  is_fictional?: boolean
+  fictional?: boolean
   image_url?: string | null
   job?: string | null
   description?: string | null
-  birth_date?: string | null
-  birth_location?: string | null
-  death_date?: string | null
-  death_location?: string | null
-  views_count: number
-  likes_count: number
-  shares_count: number
-  quotes_count?: number
-  created_at: string
-  updated_at: string
+  dates?: AuthorDates
+  stats?: AuthorStats
+  created_at: string | null
+}
+
+export interface ReferenceStats {
+  views: number
+  likes: number
 }
 
 export interface QuoteReference {
   id: number
   name: string
-  primary_type: string
+  type: string
   secondary_type?: string | null
-  original_language?: string
+  language?: string
   release_date?: string | null
   description?: string | null
   image_url?: string | null
-  views_count: number
-  likes_count: number
-  shares_count: number
-  quotes_count?: number
-  created_at: string
-  updated_at: string
+  stats?: ReferenceStats
+  created_at: string | null
 }
 
 // --- Parameter types for SDK methods ---
@@ -139,7 +147,8 @@ export interface SearchParams {
 }
 
 export interface CreateQuoteData {
-  name: string
+  content?: string
+  name?: string
   language?: string
   author_id?: number
   reference_id?: number
@@ -160,6 +169,7 @@ export interface CreateQuoteData {
 }
 
 export interface UpdateQuoteData {
+  content?: string
   name?: string
   language?: string
   author_id?: number | null
@@ -168,6 +178,7 @@ export interface UpdateQuoteData {
 
 export interface CreateAuthorData {
   name: string
+  fictional?: boolean
   is_fictional?: boolean
   job?: string | null
   description?: string | null
@@ -181,9 +192,10 @@ export interface CreateAuthorData {
 
 export interface UpdateAuthorData {
   name?: string
+  fictional?: boolean
   is_fictional?: boolean
-  job?: string | null
   description?: string | null
+  job?: string | null
   birth_date?: string | null
   birth_location?: string | null
   death_date?: string | null
@@ -194,10 +206,12 @@ export interface UpdateAuthorData {
 
 export interface CreateReferenceData {
   name: string
-  primary_type: string
+  type?: string
+  primary_type?: string
   secondary_type?: string | null
   description?: string | null
   release_date?: string | null
+  language?: string
   original_language?: string
   image_url?: string | null
   urls?: Record<string, string> | null
@@ -205,10 +219,12 @@ export interface CreateReferenceData {
 
 export interface UpdateReferenceData {
   name?: string
+  type?: string
   primary_type?: string
   secondary_type?: string | null
   description?: string | null
   release_date?: string | null
+  language?: string
   original_language?: string
   image_url?: string | null
   urls?: Record<string, string> | null

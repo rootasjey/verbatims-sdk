@@ -4,23 +4,28 @@ import { apiResponseSchema } from '../types'
 import { paginate } from '../pagination'
 import type { Author, ListAuthorsParams, CreateAuthorData, UpdateAuthorData } from '../types'
 
+const authorStatsSchema = z.object({
+  views: z.number(),
+  likes: z.number(),
+})
+
+const authorDatesSchema = z.object({
+  birth: z.string().nullable().optional(),
+  death: z.string().nullable().optional(),
+  birth_location: z.string().nullable().optional(),
+  death_location: z.string().nullable().optional(),
+})
+
 const authorSchema = z.object({
   id: z.number(),
   name: z.string(),
-  is_fictional: z.boolean().optional(),
+  fictional: z.boolean().optional(),
   image_url: z.string().nullable().optional(),
   job: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
-  birth_date: z.string().nullable().optional(),
-  birth_location: z.string().nullable().optional(),
-  death_date: z.string().nullable().optional(),
-  death_location: z.string().nullable().optional(),
-  views_count: z.number(),
-  likes_count: z.number(),
-  shares_count: z.number(),
-  quotes_count: z.number().optional(),
-  created_at: z.string(),
-  updated_at: z.string(),
+  dates: authorDatesSchema.optional(),
+  stats: authorStatsSchema.optional(),
+  created_at: z.string().nullable(),
 })
 
 const authorListResponseSchema = apiResponseSchema(z.array(authorSchema))

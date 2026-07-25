@@ -4,36 +4,44 @@ import { apiResponseSchema } from '../types'
 import { paginate } from '../pagination'
 import type { QuoteWithRelations, ListQuotesParams, CreateQuoteData, UpdateQuoteData } from '../types'
 
-const quoteSchema = z.object({
+const quoteStatsSchema = z.object({
+  views: z.number(),
+  likes: z.number(),
+  shares: z.number().optional(),
+})
+
+const quoteAuthorSchema = z.object({
   id: z.number(),
   name: z.string(),
+  fictional: z.boolean().optional(),
+  image_url: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  job: z.string().nullable().optional(),
+})
+
+const quoteReferenceSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  type: z.string().optional(),
+})
+
+const quoteTagSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  color: z.string().nullable().optional(),
+})
+
+const quoteSchema = z.object({
+  id: z.number(),
+  content: z.string(),
   language: z.string(),
-  author_id: z.number().optional(),
-  reference_id: z.number().optional(),
-  status: z.string(),
-  views_count: z.number(),
-  likes_count: z.number(),
-  shares_count: z.number(),
-  is_featured: z.boolean().optional(),
-  created_at: z.string(),
-  updated_at: z.string(),
-  author: z.object({
-    id: z.number(),
-    name: z.string(),
-    is_fictional: z.boolean().optional(),
-    image_url: z.string().nullable().optional(),
-    description: z.string().nullable().optional(),
-  }).optional(),
-  reference: z.object({
-    id: z.number(),
-    name: z.string(),
-    primary_type: z.string().optional(),
-  }).optional(),
-  tags: z.array(z.object({
-    id: z.number().optional(),
-    name: z.string(),
-    color: z.string().nullable().optional(),
-  })).optional(),
+  stats: quoteStatsSchema.optional(),
+  featured: z.boolean().optional(),
+  author: quoteAuthorSchema.nullable().optional(),
+  reference: quoteReferenceSchema.nullable().optional(),
+  tags: z.array(quoteTagSchema).optional(),
+  created_at: z.string().nullable(),
+  updated_at: z.string().nullable(),
 })
 
 const quoteListResponseSchema = apiResponseSchema(z.array(quoteSchema))

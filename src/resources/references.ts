@@ -4,21 +4,22 @@ import { apiResponseSchema } from '../types'
 import { paginate } from '../pagination'
 import type { ListReferencesParams, CreateReferenceData, UpdateReferenceData } from '../types'
 
+const referenceStatsSchema = z.object({
+  views: z.number(),
+  likes: z.number(),
+})
+
 const referenceSchema = z.object({
   id: z.number(),
   name: z.string(),
-  primary_type: z.string(),
+  type: z.string(),
   secondary_type: z.string().nullable().optional(),
-  original_language: z.string().optional(),
+  language: z.string().optional(),
   release_date: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   image_url: z.string().nullable().optional(),
-  views_count: z.number(),
-  likes_count: z.number(),
-  shares_count: z.number(),
-  quotes_count: z.number().optional(),
-  created_at: z.string(),
-  updated_at: z.string(),
+  stats: referenceStatsSchema.optional(),
+  created_at: z.string().nullable(),
 })
 
 const referenceListResponseSchema = apiResponseSchema(z.array(referenceSchema))

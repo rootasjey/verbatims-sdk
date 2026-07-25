@@ -38,7 +38,7 @@ describe('QuotesResource', () => {
     it('calls GET /quotes with params', async () => {
       fetchFn.mockResolvedValue(mockResponse({
         success: true,
-        data: [{ id: 1, name: 'Test', language: 'fr', status: 'published', views_count: 0, likes_count: 0, shares_count: 0, created_at: '2024-01-01', updated_at: '2024-01-01' }],
+        data: [{ id: 1, content: 'Test', language: 'fr', stats: { views: 0, likes: 0, shares: 0 }, created_at: '2024-01-01', updated_at: '2024-01-01' }],
         pagination: { page: 1, limit: 10, total: 1, totalPages: 1, hasMore: false },
       }))
 
@@ -52,7 +52,7 @@ describe('QuotesResource', () => {
       expect(parsed.searchParams.get('limit')).toBe('10')
       expect(result.success).toBe(true)
       expect(result.data).toHaveLength(1)
-      expect(result.data![0].name).toBe('Test')
+      expect(result.data![0].content).toBe('Test')
     })
   })
 
@@ -60,7 +60,7 @@ describe('QuotesResource', () => {
     it('calls GET /quotes/:id', async () => {
       fetchFn.mockResolvedValue(mockResponse({
         success: true,
-        data: { id: 42, name: 'Quote 42', language: 'en', status: 'published', views_count: 10, likes_count: 5, shares_count: 2, created_at: '2024-01-01', updated_at: '2024-01-01' },
+        data: { id: 42, content: 'Quote 42', language: 'en', stats: { views: 10, likes: 5, shares: 2 }, created_at: '2024-01-01', updated_at: '2024-01-01' },
       }))
 
       const result = await quotes.get(42)
@@ -74,7 +74,7 @@ describe('QuotesResource', () => {
     it('calls POST /quotes with body', async () => {
       fetchFn.mockResolvedValue(mockResponse({
         success: true,
-        data: { id: 1, name: 'New quote', language: 'en', status: 'published', views_count: 0, likes_count: 0, shares_count: 0, created_at: '2024-01-01', updated_at: '2024-01-01' },
+        data: { id: 1, content: 'New quote', language: 'en', stats: { views: 0, likes: 0, shares: 0 }, created_at: '2024-01-01', updated_at: '2024-01-01' },
       }))
 
       await quotes.create({ name: 'New quote', language: 'en' })
@@ -88,7 +88,7 @@ describe('QuotesResource', () => {
     it('calls PUT /quotes/:id with body', async () => {
       fetchFn.mockResolvedValue(mockResponse({
         success: true,
-        data: { id: 1, name: 'Updated', language: 'en', status: 'published', views_count: 0, likes_count: 0, shares_count: 0, created_at: '2024-01-01', updated_at: '2024-01-01' },
+        data: { id: 1, content: 'Updated', language: 'en', stats: { views: 0, likes: 0, shares: 0 }, created_at: '2024-01-01', updated_at: '2024-01-01' },
       }))
 
       await quotes.update(1, { name: 'Updated' })
@@ -113,12 +113,12 @@ describe('QuotesResource', () => {
       fetchFn
         .mockResolvedValueOnce(mockResponse({
           success: true,
-          data: [{ id: 1, name: 'A', language: 'fr', status: 'published', views_count: 0, likes_count: 0, shares_count: 0, created_at: '2024-01-01', updated_at: '2024-01-01' }],
+          data: [{ id: 1, content: 'A', language: 'fr', stats: { views: 0, likes: 0, shares: 0 }, created_at: '2024-01-01', updated_at: '2024-01-01' }],
           pagination: { page: 1, limit: 1, total: 2, totalPages: 2, hasMore: true },
         }))
         .mockResolvedValueOnce(mockResponse({
           success: true,
-          data: [{ id: 2, name: 'B', language: 'fr', status: 'published', views_count: 0, likes_count: 0, shares_count: 0, created_at: '2024-01-01', updated_at: '2024-01-01' }],
+          data: [{ id: 2, content: 'B', language: 'fr', stats: { views: 0, likes: 0, shares: 0 }, created_at: '2024-01-01', updated_at: '2024-01-01' }],
           pagination: { page: 2, limit: 1, total: 2, totalPages: 2, hasMore: false },
         }))
 
@@ -148,7 +148,7 @@ describe('AuthorsResource', () => {
   it('list calls GET /authors', async () => {
     fetchFn.mockResolvedValue(mockResponse({
       success: true,
-      data: [{ id: 1, name: 'Author', views_count: 0, likes_count: 0, shares_count: 0, created_at: '2024-01-01', updated_at: '2024-01-01' }],
+      data: [{ id: 1, name: 'Author', stats: { views: 0, likes: 0 }, created_at: '2024-01-01' }],
       pagination: { page: 1, limit: 10, total: 1, totalPages: 1, hasMore: false },
     }))
 
@@ -163,7 +163,7 @@ describe('AuthorsResource', () => {
   it('get calls GET /authors/:id', async () => {
     fetchFn.mockResolvedValue(mockResponse({
       success: true,
-      data: { id: 5, name: 'Author 5', views_count: 0, likes_count: 0, shares_count: 0, created_at: '2024-01-01', updated_at: '2024-01-01' },
+      data: { id: 5, name: 'Author 5', stats: { views: 0, likes: 0 }, created_at: '2024-01-01' },
     }))
 
     await authors.get(5)
@@ -174,7 +174,7 @@ describe('AuthorsResource', () => {
   it('create calls POST /authors', async () => {
     fetchFn.mockResolvedValue(mockResponse({
       success: true,
-      data: { id: 1, name: 'New Author', views_count: 0, likes_count: 0, shares_count: 0, created_at: '2024-01-01', updated_at: '2024-01-01' },
+      data: { id: 1, name: 'New Author', stats: { views: 0, likes: 0 }, created_at: '2024-01-01' },
     }))
 
     await authors.create({ name: 'New Author', is_fictional: true })
@@ -186,7 +186,7 @@ describe('AuthorsResource', () => {
   it('update calls PUT /authors/:id', async () => {
     fetchFn.mockResolvedValue(mockResponse({
       success: true,
-      data: { id: 1, name: 'Updated', views_count: 0, likes_count: 0, shares_count: 0, created_at: '2024-01-01', updated_at: '2024-01-01' },
+      data: { id: 1, name: 'Updated', stats: { views: 0, likes: 0 }, created_at: '2024-01-01' },
     }))
 
     await authors.update(1, { name: 'Updated' })
@@ -208,7 +208,7 @@ describe('ReferencesResource', () => {
   it('list calls GET /references', async () => {
     fetchFn.mockResolvedValue(mockResponse({
       success: true,
-      data: [{ id: 1, name: 'Ref', primary_type: 'book', views_count: 0, likes_count: 0, shares_count: 0, created_at: '2024-01-01', updated_at: '2024-01-01' }],
+      data: [{ id: 1, name: 'Ref', type: 'book', stats: { views: 0, likes: 0 }, created_at: '2024-01-01' }],
       pagination: { page: 1, limit: 10, total: 1, totalPages: 1, hasMore: false },
     }))
 
@@ -222,7 +222,7 @@ describe('ReferencesResource', () => {
   it('get calls GET /references/:id', async () => {
     fetchFn.mockResolvedValue(mockResponse({
       success: true,
-      data: { id: 3, name: 'Ref 3', primary_type: 'book', views_count: 0, likes_count: 0, shares_count: 0, created_at: '2024-01-01', updated_at: '2024-01-01' },
+      data: { id: 3, name: 'Ref 3', type: 'book', stats: { views: 0, likes: 0 }, created_at: '2024-01-01' },
     }))
 
     await references.get(3)
@@ -233,7 +233,7 @@ describe('ReferencesResource', () => {
   it('create calls POST /references', async () => {
     fetchFn.mockResolvedValue(mockResponse({
       success: true,
-      data: { id: 1, name: 'New Ref', primary_type: 'movie', views_count: 0, likes_count: 0, shares_count: 0, created_at: '2024-01-01', updated_at: '2024-01-01' },
+      data: { id: 1, name: 'New Ref', type: 'movie', stats: { views: 0, likes: 0 }, created_at: '2024-01-01' },
     }))
 
     await references.create({ name: 'New Ref', primary_type: 'movie' })
@@ -244,7 +244,7 @@ describe('ReferencesResource', () => {
   it('update calls PUT /references/:id', async () => {
     fetchFn.mockResolvedValue(mockResponse({
       success: true,
-      data: { id: 1, name: 'Updated', primary_type: 'book', views_count: 0, likes_count: 0, shares_count: 0, created_at: '2024-01-01', updated_at: '2024-01-01' },
+      data: { id: 1, name: 'Updated', type: 'book', stats: { views: 0, likes: 0 }, created_at: '2024-01-01' },
     }))
 
     await references.update(1, { name: 'Updated' })
@@ -266,7 +266,7 @@ describe('TagsResource', () => {
   it('list calls GET /tags', async () => {
     fetchFn.mockResolvedValue(mockResponse({
       success: true,
-      data: [{ id: 1, name: 'wisdom' }],
+      data: [{ id: 1, name: 'wisdom', color: '#6C757D' }],
       pagination: { page: 1, limit: 10, total: 1, totalPages: 1, hasMore: false },
     }))
 
@@ -280,12 +280,12 @@ describe('TagsResource', () => {
     fetchFn
       .mockResolvedValueOnce(mockResponse({
         success: true,
-        data: [{ id: 1, name: 'tag1' }],
+        data: [{ id: 1, name: 'tag1', color: '#6C757D' }],
         pagination: { page: 1, limit: 1, total: 2, totalPages: 2, hasMore: true },
       }))
       .mockResolvedValueOnce(mockResponse({
         success: true,
-        data: [{ id: 2, name: 'tag2' }],
+        data: [{ id: 2, name: 'tag2', color: '#6C757D' }],
         pagination: { page: 2, limit: 1, total: 2, totalPages: 2, hasMore: false },
       }))
 
@@ -351,7 +351,7 @@ describe('SearchResource', () => {
   it('query calls GET /search with q param', async () => {
     fetchFn.mockResolvedValue(mockResponse({
       success: true,
-      data: [{ id: 1, type: 'quote', name: 'Life is...' }],
+      data: [{ id: 1, content: 'Life is...', language: 'en', created_at: null }],
       pagination: { page: 1, limit: 10, total: 1, totalPages: 1, hasMore: false },
     }))
 
@@ -361,19 +361,19 @@ describe('SearchResource', () => {
     const parsed = new URL(url, 'http://localhost')
     expect(parsed.searchParams.get('q')).toBe('life')
     expect(parsed.searchParams.get('type')).toBe('quotes')
-    expect(result.data![0].name).toBe('Life is...')
+    expect(result.data![0].content).toBe('Life is...')
   })
 
   it('paginate searches across pages', async () => {
     fetchFn
       .mockResolvedValueOnce(mockResponse({
         success: true,
-        data: [{ id: 1, type: 'quote', name: 'A' }],
+        data: [{ id: 1, content: 'A', language: 'en', created_at: null }],
         pagination: { page: 1, limit: 1, total: 2, totalPages: 2, hasMore: true },
       }))
       .mockResolvedValueOnce(mockResponse({
         success: true,
-        data: [{ id: 2, type: 'quote', name: 'B' }],
+        data: [{ id: 2, content: 'B', language: 'en', created_at: null }],
         pagination: { page: 2, limit: 1, total: 2, totalPages: 2, hasMore: false },
       }))
 

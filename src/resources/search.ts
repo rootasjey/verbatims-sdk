@@ -4,17 +4,32 @@ import { apiResponseSchema } from '../types'
 import { paginate } from '../pagination'
 import type { SearchParams } from '../types'
 
-const searchResultSchema = z.object({
+const searchAuthorSchema = z.object({
   id: z.number(),
-  type: z.string(),
   name: z.string(),
-  description: z.string().optional(),
-  match: z.string().optional(),
+  fictional: z.boolean().optional(),
+  image_url: z.string().nullable().optional(),
+  job: z.string().nullable().optional(),
 })
 
-type SearchResultItem = z.infer<typeof searchResultSchema>
+const searchReferenceSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  type: z.string().optional(),
+})
 
-const searchResponseSchema = apiResponseSchema(z.array(searchResultSchema))
+const searchQuoteSchema = z.object({
+  id: z.number(),
+  content: z.string(),
+  language: z.string(),
+  author: searchAuthorSchema.nullable().optional(),
+  reference: searchReferenceSchema.nullable().optional(),
+  created_at: z.string().nullable(),
+})
+
+type SearchResultItem = z.infer<typeof searchQuoteSchema>
+
+const searchResponseSchema = apiResponseSchema(z.array(searchQuoteSchema))
 
 export class SearchResource {
   constructor(private client: VerbatimsClient) {}

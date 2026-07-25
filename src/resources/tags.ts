@@ -6,8 +6,10 @@ import { paginate } from '../pagination'
 const tagSchema = z.object({
   id: z.number(),
   name: z.string(),
-  color: z.string().nullable().optional(),
-  usage_count: z.number().optional(),
+  description: z.string().nullable().optional(),
+  category: z.string().nullable().optional(),
+  color: z.string().nullable(),
+  quote_count: z.number().optional(),
 })
 
 type TagItem = z.infer<typeof tagSchema>
