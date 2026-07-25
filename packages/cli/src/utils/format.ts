@@ -5,7 +5,8 @@ export type Format = 'table' | 'json' | 'plain'
 const stripAnsi = (s: string) => s.replace(/\x1B\[[0-?9;]*[mK]/g, '')
 
 function padVisual(s: string, max: number): string {
-  return s.padEnd(max)
+  const padLen = Math.max(0, max - stripAnsi(s).length)
+  return s + ' '.repeat(padLen)
 }
 
 function wordWrap(s: string, max: number): string[] {
@@ -72,7 +73,7 @@ export function formatTable<T extends Record<string, unknown>>(
     )
   })
 
-  const total = colSizes.reduce((a, b, i) => a + b + (i > 0 ? 3 : 1), 0) + 1
+  const total = colSizes.reduce((a, b) => a + b + 3, 0) + 1
   const terminal = terminalWidth()
 
   if (total > terminal) {
@@ -83,7 +84,7 @@ export function formatTable<T extends Record<string, unknown>>(
     }
   }
 
-  const secondTotal = colSizes.reduce((a, b, i) => a + b + (i > 0 ? 3 : 1), 0) + 1
+  const secondTotal = colSizes.reduce((a, b) => a + b + 3, 0) + 1
   if (secondTotal > terminal) {
     const overflow2 = secondTotal - terminal
     const flexIdxs = columns
@@ -136,7 +137,7 @@ export function output(data: unknown, format: Format): void {
     }
 
     const allKeys = Object.keys(data[0] as Record<string, unknown>)
-    const keyOrder = ['id', 'content', 'name', 'language', 'type', 'author', 'reference', 'stats', 'tags', 'featured']
+    const keyOrder = ['id', 'content', 'name', 'language', 'type', 'author', 'reference']
     const columns = keyOrder
       .filter((k) => allKeys.includes(k))
       .map((k) => ({ key: k, label: k }))
