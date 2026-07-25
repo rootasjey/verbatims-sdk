@@ -4,26 +4,31 @@
   "description": "CLI for the Verbatims quotes API",
   "type": "module",
   "bin": {
-    "verbatims": "./src/index.ts"
+    "verbatims": "./bin/verbatims.js"
   },
   "files": [
+    "bin",
     "src",
     "README.md"
   ],
   "scripts": {
     "dev": "tsx src/index.ts",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "tsc"
+    "prepublishOnly": "tsc --noEmit"
   },
   "dependencies": {
     "@verbatims/sdk": "^1.0.0",
     "@clack/prompts": "^0.10.1",
     "chalk": "^5.4.1",
-    "commander": "^13.1.0"
+    "commander": "^13.1.0",
+    "tsx": "^4.19.4"
   },
   "devDependencies": {
-    "tsx": "^4.19.4",
     "typescript": "^5.9.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rootasjey/verbatims-sdk.git"
   },
   "publishConfig": {
     "access": "public"
