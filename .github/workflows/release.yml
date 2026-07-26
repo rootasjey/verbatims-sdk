@@ -10,6 +10,8 @@ on:
       - 'package.json'
       - 'tsconfig.json'
       - '.releaserc'
+      - '.github/workflows/release.yml'
+  workflow_dispatch:
 
 permissions:
   contents: write
