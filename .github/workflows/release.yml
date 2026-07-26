@@ -48,7 +48,11 @@ jobs:
       - run: bun install --frozen-lockfile
       - name: Publish CLI
         run: |
-          npm version patch -w packages/cli --no-git-tag-version
+          CURRENT=$(node -p "require('./packages/cli/package.json').version")
+          LATEST=$(npm view @verbatims/cli version 2>/dev/null || echo "0.0.0")
+          if [ "$CURRENT" = "$LATEST" ]; then
+            npm version patch -w packages/cli --no-git-tag-version
+          fi
           npm publish -w packages/cli
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
