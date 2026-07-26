@@ -1,6 +1,6 @@
 {
   "name": "@verbatims/sdk",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "description": "TypeScript SDK for the Verbatims quotes API",
   "type": "module",
   "workspaces": [
