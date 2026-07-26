@@ -53,6 +53,6 @@ jobs:
           if [ "$CURRENT" = "$LATEST" ]; then
             npm version patch -w packages/cli --no-git-tag-version
           fi
-          npm publish -w packages/cli
+          npm publish -w packages/cli --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

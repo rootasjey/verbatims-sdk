@@ -13,8 +13,7 @@
   ],
   "scripts": {
     "dev": "tsx src/index.ts",
-    "typecheck": "tsc --noEmit",
-    "prepublishOnly": "tsc --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@verbatims/sdk": "^1.0.0",
