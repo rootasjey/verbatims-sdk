@@ -76,8 +76,8 @@ export function registerThemesCommand(program: Command) {
           name: name as string,
           description: (description as string) || null,
           language: options.language || null,
-          is_active: options.active ?? undefined,
-          is_default: options.default ?? undefined,
+          is_active: options.active !== undefined ? true : undefined,
+          is_default: options.default !== undefined ? true : undefined,
           priority: options.priority ? Number(options.priority) : undefined,
         }),
         format,
@@ -257,7 +257,7 @@ export function registerThemesCommand(program: Command) {
       const client = await getClient()
       const format = getFormat(program)
       const { data } = await withSpinner('Fetching suggestions', () =>
-        client.themes.filterSuggestions({ q, type: options.type }),
+        client.themes.filterSuggestions({ q, type: options.type! }),
         format,
       )
       output(data, format)
