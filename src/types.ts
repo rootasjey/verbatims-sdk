@@ -235,3 +235,186 @@ export interface CreateCollectionData {
   description?: string | null
   is_public?: boolean
 }
+
+// --- Theme types ---
+
+export interface Theme {
+  id: number
+  slug: string
+  name: string
+  description: string | null
+  language: string | null
+  isActive: boolean
+  isDefault: boolean
+  scheduledStart: string | null
+  scheduledEnd: string | null
+  priority: number
+  config: Record<string, unknown> | null
+  createdAt: string
+  updatedAt: string
+  filters_count: number
+  pending_suggestions_count?: number
+}
+
+export interface ThemeFilter {
+  id: number
+  themeId: number
+  type: string
+  value: string
+  matchMode: 'any' | 'all'
+}
+
+export interface ThemeTranslation {
+  id: number
+  themeId: number
+  language: string
+  name: string
+  description: string | null
+}
+
+export interface ThemeSuggestion {
+  id: number
+  themeId: number
+  enrichmentJobId: number | null
+  type: 'tag' | 'author' | 'reference'
+  suggestedValue: string
+  context: string | null
+  status: 'pending' | 'accepted' | 'rejected'
+  createdBy: number | null
+  reviewedBy: number | null
+  reviewedAt: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ThemeFeedQuote {
+  id: number
+  name: string
+  language: string
+  created_at: string
+  views_count: number
+  likes_count: number
+  updated_at: string
+  author?: { id: number; name: string }
+  reference?: { id: number; name: string }
+}
+
+export interface ThemeFeedAuthor {
+  id: number
+  name: string
+  job: string
+  description: string
+  image_url: string
+  likes_count: number
+}
+
+export interface ThemeFeedReference {
+  id: number
+  name: string
+  description: string
+  primary_type: string
+  image_url: string
+  likes_count: number
+}
+
+export interface ThemeFeed {
+  theme: Theme
+  quotes: ThemeFeedQuote[]
+  authors: ThemeFeedAuthor[]
+  references: ThemeFeedReference[]
+  total: number
+}
+
+export interface ThemeWithDetails extends Theme {
+  filters: ThemeFilter[]
+  translations: ThemeTranslation[]
+}
+
+export interface ListThemesParams {
+  page?: number
+  limit?: number
+  search?: string
+  sort_by?: 'priority' | 'name' | 'slug'
+  sort_order?: 'asc' | 'desc'
+}
+
+export interface CreateThemeData {
+  slug: string
+  name: string
+  description?: string | null
+  language?: string | null
+  translations?: Array<{ language: string; name: string; description?: string | null }>
+  is_active?: boolean
+  is_default?: boolean
+  priority?: number
+  scheduled_start?: string | null
+  scheduled_end?: string | null
+  config?: Record<string, unknown> | null
+}
+
+export interface UpdateThemeData {
+  slug?: string
+  name?: string
+  description?: string | null
+  language?: string | null
+  is_active?: boolean
+  is_default?: boolean
+  priority?: number
+  scheduled_start?: string | null
+  scheduled_end?: string | null
+  config?: Record<string, unknown> | string | null
+  translations?: Array<{ language: string; name: string; description?: string | null }>
+}
+
+export interface AddFilterData {
+  type: string
+  value: string
+  match_mode?: 'any' | 'all'
+}
+
+export interface FilterSuggestion {
+  label: string
+  value: string
+}
+
+export interface FilterRecommendationsData {
+  name?: string
+  filters?: Array<{ type: string; value: string }>
+}
+
+export interface FilterRecommendation {
+  type: string
+  value: string
+  label: string
+}
+
+export interface ThemeNameSuggestion {
+  name: string
+  slug: string
+  description: string
+}
+
+export interface ThemeSuggestionItem {
+  type: 'tag' | 'author' | 'reference'
+  name: string
+  slug: string
+  description: string
+  color_primary: string
+  color_secondary: string
+  filters: Array<{ type: string; value: string; match_mode: 'any' }>
+}
+
+export interface ActiveThemeParams {
+  language?: string
+  theme?: string
+}
+
+export interface FeedParams {
+  language?: string
+}
+
+export interface ThemeSuggestionsQuery {
+  ai?: boolean
+  tags?: string
+  language?: string
+}

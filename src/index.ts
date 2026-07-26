@@ -5,6 +5,7 @@ import { ReferencesResource } from './resources/references'
 import { TagsResource } from './resources/tags'
 import { CollectionsResource } from './resources/collections'
 import { SearchResource } from './resources/search'
+import { ThemesResource } from './resources/themes'
 
 export type { ClientOptions } from './client'
 export { paginate } from './pagination'
@@ -36,6 +37,27 @@ export type {
   CreateReferenceData,
   UpdateReferenceData,
   CreateCollectionData,
+  Theme,
+  ThemeFilter,
+  ThemeTranslation,
+  ThemeSuggestion,
+  ThemeFeed,
+  ThemeFeedQuote,
+  ThemeFeedAuthor,
+  ThemeFeedReference,
+  ThemeWithDetails,
+  ListThemesParams,
+  CreateThemeData,
+  UpdateThemeData,
+  AddFilterData,
+  FilterSuggestion,
+  FilterRecommendationsData,
+  FilterRecommendation,
+  ThemeNameSuggestion,
+  ThemeSuggestionItem,
+  ActiveThemeParams,
+  FeedParams,
+  ThemeSuggestionsQuery,
 } from './types'
 
 export class VerbatimsClient extends BaseClient {
@@ -45,6 +67,7 @@ export class VerbatimsClient extends BaseClient {
   tags: TagsResource
   collections: CollectionsResource
   search: SearchResource
+  themes: ThemesResource
 
   constructor(apiKey: string, opts?: ConstructorParameters<typeof BaseClient>[1]) {
     super(apiKey, opts)
@@ -54,5 +77,6 @@ export class VerbatimsClient extends BaseClient {
     this.tags = new TagsResource(this)
     this.collections = new CollectionsResource(this)
     this.search = new SearchResource(this)
+    this.themes = new ThemesResource(this)
   }
 }

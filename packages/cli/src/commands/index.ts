@@ -6,6 +6,7 @@ import { registerTagsCommand } from './tags.js'
 import { registerCollectionsCommand } from './collections.js'
 import { registerSearchCommand } from './search.js'
 import { registerConfigCommand } from './config.js'
+import { registerThemesCommand } from './themes.js'
 
 export function registerCommands(program: Command) {
   registerQuotesCommand(program)
@@ -15,4 +16,5 @@ export function registerCommands(program: Command) {
   registerCollectionsCommand(program)
   registerSearchCommand(program)
   registerConfigCommand(program)
+  registerThemesCommand(program)
 }

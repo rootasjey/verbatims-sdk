@@ -6,6 +6,7 @@ import { ReferencesResource } from '../references'
 import { TagsResource } from '../tags'
 import { CollectionsResource } from '../collections'
 import { SearchResource } from '../search'
+import { ThemesResource } from '../themes'
 
 function mockResponse(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -335,6 +336,205 @@ describe('CollectionsResource', () => {
     const [url, opts] = fetchFn.mock.calls[0]
     expect(url).toContain('/collections/1/quotes/42')
     expect(opts.method).toBe('DELETE')
+  })
+})
+
+describe('ThemesResource', () => {
+  let fetchFn: ReturnType<typeof vi.fn>
+  let themes: ThemesResource
+
+  beforeEach(() => {
+    const mock = createMockClient()
+    fetchFn = mock.fetchFn
+    themes = new ThemesResource(mock.client)
+  })
+
+  it('getActive calls GET /themes/active', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: { id: 1, slug: 'summer', name: 'Summer', description: null, language: 'en', isActive: true, isDefault: false, scheduledStart: null, scheduledEnd: null, priority: 0, config: null, createdAt: '2024-01-01', updatedAt: '2024-01-01', filters_count: 0 },
+    }))
+
+    const result = await themes.getActive({ language: 'en' })
+    const [url] = fetchFn.mock.calls[0]
+    expect(url).toContain('/themes/active')
+    const parsed = new URL(url, 'http://localhost')
+    expect(parsed.searchParams.get('language')).toBe('en')
+    expect(result.data?.slug).toBe('summer')
+  })
+
+  it('getFeed calls GET /themes/:slug/feed', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: { theme: { id: 1, slug: 'summer', name: 'Summer', description: null, language: 'en', isActive: true, isDefault: false, scheduledStart: null, scheduledEnd: null, priority: 0, config: null, createdAt: '2024-01-01', updatedAt: '2024-01-01', filters_count: 0 }, quotes: [], authors: [], references: [], total: 0 },
+    }))
+
+    await themes.getFeed('summer', { language: 'fr' })
+    const [url] = fetchFn.mock.calls[0]
+    expect(url).toContain('/themes/summer/feed')
+    const parsed = new URL(url, 'http://localhost')
+    expect(parsed.searchParams.get('language')).toBe('fr')
+  })
+
+  it('list calls GET /themes with params', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: [{ id: 1, slug: 'summer', name: 'Summer', description: null, language: 'en', isActive: true, isDefault: false, scheduledStart: null, scheduledEnd: null, priority: 0, config: null, createdAt: '2024-01-01', updatedAt: '2024-01-01', filters_count: 0 }],
+      pagination: { page: 1, limit: 10, total: 1, totalPages: 1, hasMore: false },
+    }))
+
+    const result = await themes.list({ search: 'summer' })
+    const [url] = fetchFn.mock.calls[0]
+    expect(url).toContain('/themes')
+    const parsed = new URL(url, 'http://localhost')
+    expect(parsed.searchParams.get('search')).toBe('summer')
+    expect(result.data).toHaveLength(1)
+  })
+
+  it('paginate yields themes across pages', async () => {
+    fetchFn
+      .mockResolvedValueOnce(mockResponse({
+        success: true,
+        data: [{ id: 1, slug: 'a', name: 'A', description: null, language: null, isActive: false, isDefault: false, scheduledStart: null, scheduledEnd: null, priority: 0, config: null, createdAt: '2024-01-01', updatedAt: '2024-01-01', filters_count: 0 }],
+        pagination: { page: 1, limit: 1, total: 2, totalPages: 2, hasMore: true },
+      }))
+      .mockResolvedValueOnce(mockResponse({
+        success: true,
+        data: [{ id: 2, slug: 'b', name: 'B', description: null, language: null, isActive: false, isDefault: false, scheduledStart: null, scheduledEnd: null, priority: 0, config: null, createdAt: '2024-01-01', updatedAt: '2024-01-01', filters_count: 0 }],
+        pagination: { page: 2, limit: 1, total: 2, totalPages: 2, hasMore: false },
+      }))
+
+    const results = []
+    for await (const item of themes.paginate()) {
+      results.push(item)
+    }
+    expect(results).toHaveLength(2)
+  })
+
+  it('get calls GET /themes/:id', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: { id: 5, slug: 'test', name: 'Test', description: null, language: null, isActive: false, isDefault: false, scheduledStart: null, scheduledEnd: null, priority: 0, config: null, createdAt: '2024-01-01', updatedAt: '2024-01-01', filters_count: 0, filters: [], translations: [] },
+    }))
+
+    await themes.get(5)
+    const [url] = fetchFn.mock.calls[0]
+    expect(url).toContain('/themes/5')
+  })
+
+  it('create calls POST /themes', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: { id: 1, slug: 'new-theme', name: 'New Theme', description: null, language: 'en', isActive: false, isDefault: false, scheduledStart: null, scheduledEnd: null, priority: 0, config: null, createdAt: '2024-01-01', updatedAt: '2024-01-01', filters_count: 0 },
+    }))
+
+    await themes.create({ slug: 'new-theme', name: 'New Theme', language: 'en' })
+    const [, opts] = fetchFn.mock.calls[0]
+    expect(opts.method).toBe('POST')
+    expect(JSON.parse(opts.body).slug).toBe('new-theme')
+  })
+
+  it('update calls PUT /themes/:id', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: { id: 1, slug: 'updated', name: 'Updated', description: null, language: 'en', isActive: false, isDefault: false, scheduledStart: null, scheduledEnd: null, priority: 5, config: null, createdAt: '2024-01-01', updatedAt: '2024-01-01', filters_count: 0 },
+    }))
+
+    await themes.update(1, { priority: 5 })
+    const [, opts] = fetchFn.mock.calls[0]
+    expect(opts.method).toBe('PUT')
+  })
+
+  it('delete calls DELETE /themes/:id', async () => {
+    fetchFn.mockResolvedValue(mockResponse({ success: true }))
+    await themes.delete(1)
+    const [url, opts] = fetchFn.mock.calls[0]
+    expect(url).toContain('/themes/1')
+    expect(opts.method).toBe('DELETE')
+  })
+
+  it('activate calls PUT /themes/:id/activate', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: { id: 1, slug: 'test', name: 'Test', description: null, language: null, isActive: true, isDefault: false, scheduledStart: null, scheduledEnd: null, priority: 0, config: null, createdAt: '2024-01-01', updatedAt: '2024-01-01', filters_count: 0 },
+    }))
+
+    await themes.activate(1, true)
+    const [, opts] = fetchFn.mock.calls[0]
+    expect(opts.method).toBe('PUT')
+    expect(JSON.parse(opts.body)).toEqual({ is_active: true })
+  })
+
+  it('addFilter calls POST /themes/:id/filters', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: { id: 10, themeId: 1, type: 'keyword', value: 'test', matchMode: 'any' },
+    }))
+
+    await themes.addFilter(1, { type: 'keyword', value: 'test' })
+    const [, opts] = fetchFn.mock.calls[0]
+    expect(opts.method).toBe('POST')
+    expect(JSON.parse(opts.body)).toEqual({ type: 'keyword', value: 'test' })
+  })
+
+  it('removeFilter calls DELETE /themes/:id/filters/:fid', async () => {
+    fetchFn.mockResolvedValue(mockResponse({ success: true }))
+    await themes.removeFilter(1, 5)
+    const [url, opts] = fetchFn.mock.calls[0]
+    expect(url).toContain('/themes/1/filters/5')
+    expect(opts.method).toBe('DELETE')
+  })
+
+  it('filterSuggestions calls GET /themes/filter-suggestions', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: [{ label: 'Test Tag', value: 'test' }],
+    }))
+
+    await themes.filterSuggestions({ q: 'test', type: 'tag_name' })
+    const [url] = fetchFn.mock.calls[0]
+    expect(url).toContain('/themes/filter-suggestions')
+    const parsed = new URL(url, 'http://localhost')
+    expect(parsed.searchParams.get('q')).toBe('test')
+    expect(parsed.searchParams.get('type')).toBe('tag_name')
+  })
+
+  it('filterRecommendations calls POST /themes/filter-recommendations', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: [{ type: 'tag', value: 'wisdom', label: 'Wisdom' }],
+    }))
+
+    await themes.filterRecommendations({ name: 'Summer', filters: [{ type: 'keyword', value: 'sun' }] })
+    const [, opts] = fetchFn.mock.calls[0]
+    expect(opts.method).toBe('POST')
+    expect(JSON.parse(opts.body).name).toBe('Summer')
+  })
+
+  it('suggestName calls POST /themes/suggest-name', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: { name: 'Summer Vibes', slug: 'summer-vibes', description: 'A summer theme' },
+    }))
+
+    await themes.suggestName('summer')
+    const [, opts] = fetchFn.mock.calls[0]
+    expect(opts.method).toBe('POST')
+    expect(JSON.parse(opts.body).name).toBe('summer')
+  })
+
+  it('suggestions calls GET /themes/suggestions', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: [{ type: 'tag', name: 'Summer', slug: 'summer', description: 'Summer theme', color_primary: '#FF0000', color_secondary: '#00FF00', filters: [{ type: 'keyword', value: 'summer', match_mode: 'any' }] }],
+    }))
+
+    await themes.suggestions({ ai: true, tags: 'summer,beach' })
+    const [url] = fetchFn.mock.calls[0]
+    expect(url).toContain('/themes/suggestions')
+    const parsed = new URL(url, 'http://localhost')
+    expect(parsed.searchParams.get('ai')).toBe('true')
+    expect(parsed.searchParams.get('tags')).toBe('summer,beach')
   })
 })
 
