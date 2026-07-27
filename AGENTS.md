@@ -20,3 +20,13 @@
 - `npm run typecheck` — tsc --noEmit
 - `npm test` — vitest run
 - `npm run test:watch` — vitest en mode watch
+
+# Release (CI)
+
+- **Release workflow** : `.github/workflows/release.yml`
+- Déclenché sur push dans `main` touchant `src/`, `packages/cli/`, `package.json`, `tsconfig.json` ou le workflow lui-même
+- Pas de semantic-release. La release SDK et CLI se fait via `npm version patch + npm publish` simple
+- **Provenance OIDC désactivé** (`@semantic-release/npm` avec provenance cause des échecs `ENEEDAUTH` intempestifs)
+- Le token npm (`NPM_TOKEN`) est stocké dans les secrets GitHub et passé via `NODE_AUTH_TOKEN` + `registry-url`
+- Si le package est déjà à jour sur npm, le script détecte et bump automatiquement avant publish
+- Les deux jobs (`release-sdk` et `release-cli`) sont indépendants et peuvent échouer séparément
