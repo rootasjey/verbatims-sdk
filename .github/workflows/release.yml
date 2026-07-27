@@ -28,11 +28,8 @@ jobs:
       - run: bun run build
       - name: Publish SDK
         run: |
-          CURRENT=$(node -p "require('./package.json').version")
           LATEST=$(npm view @verbatims/sdk version 2>/dev/null || echo "0.0.0")
-          if [ "$CURRENT" = "$LATEST" ]; then
-            node -e "const p=JSON.parse(require('fs').readFileSync('./package.json','utf8')); const v=p.version.split('.'); v[2]=+v[2]+1; p.version=v.join('.'); require('fs').writeFileSync('./package.json', JSON.stringify(p, null, 2)+'\n')"
-          fi
+          node -e "const p=JSON.parse(require('fs').readFileSync('./package.json','utf8')); const v='$LATEST'.split('.'); v[2]=+v[2]+1; p.version=v.join('.'); require('fs').writeFileSync('./package.json', JSON.stringify(p, null, 2)+'\n')"
           npm publish --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -49,11 +46,8 @@ jobs:
       - run: bun install --frozen-lockfile
       - name: Publish CLI
         run: |
-          CURRENT=$(node -p "require('./packages/cli/package.json').version")
           LATEST=$(npm view @verbatims/cli version 2>/dev/null || echo "0.0.0")
-          if [ "$CURRENT" = "$LATEST" ]; then
-            npm version patch -w packages/cli --no-git-tag-version
-          fi
+          node -e "const p=JSON.parse(require('fs').readFileSync('./packages/cli/package.json','utf8')); const v='$LATEST'.split('.'); v[2]=+v[2]+1; p.version=v.join('.'); require('fs').writeFileSync('./packages/cli/package.json', JSON.stringify(p, null, 2)+'\n')"
           npm publish -w packages/cli --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
