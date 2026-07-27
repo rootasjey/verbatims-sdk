@@ -51,6 +51,8 @@ export interface QuoteReferenceInfo {
   type?: string
 }
 
+export type QuoteStatus = 'draft' | 'pending' | 'approved' | 'rejected'
+
 export interface QuoteStats {
   views: number
   likes: number
@@ -61,11 +63,16 @@ export interface QuoteWithRelations {
   id: number
   content: string
   language: string
+  status?: QuoteStatus
   stats?: QuoteStats
   featured?: boolean
   author?: QuoteAuthor | null
   reference?: QuoteReferenceInfo | null
   tags?: Array<{ id: number; name: string; color?: string | null }>
+  user_id?: number
+  moderator_id?: number | null
+  moderated_at?: string | null
+  rejection_reason?: string | null
   created_at: string | null
   updated_at: string | null
 }
@@ -124,6 +131,7 @@ export interface ListQuotesParams {
   reference_id?: number
   search?: string
   tag?: string
+  status?: QuoteStatus
   sort_by?: string
   sort_order?: 'asc' | 'desc'
 }
@@ -176,6 +184,11 @@ export interface UpdateQuoteData {
   language?: string
   author_id?: number | null
   reference_id?: number | null
+}
+
+export interface ModerateQuoteData {
+  action: 'approve' | 'reject'
+  rejection_reason?: string | null
 }
 
 export interface CreateAuthorData {

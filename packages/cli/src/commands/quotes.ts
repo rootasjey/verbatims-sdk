@@ -1,5 +1,5 @@
 import type { Command } from 'commander'
-import { text, isCancel, cancel, confirm } from '@clack/prompts'
+import { text, isCancel, cancel, confirm, select } from '@clack/prompts'
 import chalk from 'chalk'
 import { getClient } from '../utils/client.js'
 import { output, type Format } from '../utils/format.js'
@@ -21,6 +21,7 @@ export function registerQuotesCommand(program: Command) {
     .option('--author <id>', 'Filter by author ID')
     .option('--tag <name>', 'Filter by tag')
     .option('--search <q>', 'Search in quote text')
+    .option('--status <status>', 'Filter by status (draft|pending|approved|rejected)')
     .option('--sort-by <field>', 'Sort field')
     .option('--sort-order <order>', 'Sort order (asc|desc)')
     .action(async (options: Record<string, string>) => {
@@ -34,6 +35,7 @@ export function registerQuotesCommand(program: Command) {
           author_id: options.author ? Number(options.author) : undefined,
           tag: options.tag,
           search: options.search,
+          status: options.status as any,
           sort_by: options.sortBy,
           sort_order: options.sortOrder as 'asc' | 'desc',
         }),
@@ -122,12 +124,56 @@ export function registerQuotesCommand(program: Command) {
     })
 
   quotes
+    .command('submit <id>')
+    .description('Submit a draft quote for review (draft → pending)')
+    .action(async (id: string) => {
+      const client = await getClient()
+      const format = getFormat(program)
+      const { data } = await withSpinner('Submitting quote', () => client.quotes.submit(Number(id)), format)
+      console.log(chalk.green(' Quote submitted for review'))
+      output(data, format)
+    })
+
+  quotes
+    .command('moderate <id>')
+    .description('Moderate a pending quote (pending → approved|rejected)')
+    .option('--action <action>', 'Action to take: approve or reject')
+    .option('--reason <reason>', 'Rejection reason (required when rejecting)')
+    .action(async (id: string, options: Record<string, string>) => {
+      const client = await getClient()
+      const format = getFormat(program)
+
+      const action = options.action ?? await select({
+        message: 'Action',
+        options: [
+          { value: 'approve', label: 'Approve' },
+          { value: 'reject', label: 'Reject' },
+        ],
+      })
+      if (isCancel(action)) cancel('Cancelled')
+
+      let rejection_reason: string | undefined | null
+      if (action === 'reject') {
+        rejection_reason = options.reason ?? await text({ message: 'Rejection reason' })
+        if (isCancel(rejection_reason)) cancel('Cancelled')
+      }
+
+      const { data } = await withSpinner('Moderating quote', () =>
+        client.quotes.moderate(Number(id), { action: action as 'approve' | 'reject', rejection_reason }),
+        format,
+      )
+      console.log(chalk.green(` Quote ${action === 'approve' ? 'approved' : 'rejected'}`))
+      output(data, format)
+    })
+
+  quotes
     .command('browse')
     .description('Browse quotes interactively')
     .option('--language <lang>', 'Filter by language')
     .option('--author <id>', 'Filter by author ID')
     .option('--tag <name>', 'Filter by tag')
     .option('--search <q>', 'Search in quote text')
+    .option('--status <status>', 'Filter by status (draft|pending|approved|rejected)')
     .option('--sort-by <field>', 'Sort field')
     .option('--sort-order <order>', 'Sort order (asc|desc)')
     .action(async (options: Record<string, string>) => {
@@ -140,6 +186,7 @@ export function registerQuotesCommand(program: Command) {
           author_id: options.author ? Number(options.author) : undefined,
           tag: options.tag,
           search: options.search,
+          status: options.status as any,
           sort_by: options.sortBy,
           sort_order: options.sortOrder as 'asc' | 'desc',
         }),

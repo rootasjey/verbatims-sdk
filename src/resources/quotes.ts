@@ -2,7 +2,7 @@ import { z } from 'zod/v4'
 import type { VerbatimsClient } from '../client'
 import { apiResponseSchema } from '../types'
 import { paginate } from '../pagination'
-import type { QuoteWithRelations, ListQuotesParams, CreateQuoteData, UpdateQuoteData } from '../types'
+import type { QuoteWithRelations, ListQuotesParams, CreateQuoteData, UpdateQuoteData, ModerateQuoteData } from '../types'
 
 const quoteStatsSchema = z.object({
   views: z.number(),
@@ -35,11 +35,16 @@ const quoteSchema = z.object({
   id: z.number(),
   content: z.string(),
   language: z.string(),
+  status: z.enum(['draft', 'pending', 'approved', 'rejected']).optional(),
   stats: quoteStatsSchema.optional(),
   featured: z.boolean().optional(),
   author: quoteAuthorSchema.nullable().optional(),
   reference: quoteReferenceSchema.nullable().optional(),
   tags: z.array(quoteTagSchema).optional(),
+  user_id: z.number().optional(),
+  moderator_id: z.number().nullable().optional(),
+  moderated_at: z.string().nullable().optional(),
+  rejection_reason: z.string().nullable().optional(),
   created_at: z.string().nullable(),
   updated_at: z.string().nullable(),
 })
@@ -84,5 +89,13 @@ export class QuotesResource {
 
   async delete(id: number) {
     return this.client.delete(`/quotes/${id}`, {}, quoteDeleteResponseSchema)
+  }
+
+  async submit(id: number) {
+    return this.client.post(`/quotes/${id}/submit`, {}, {}, quoteSingleResponseSchema)
+  }
+
+  async moderate(id: number, data: ModerateQuoteData) {
+    return this.client.post(`/quotes/${id}/moderate`, data, {}, quoteSingleResponseSchema)
   }
 }

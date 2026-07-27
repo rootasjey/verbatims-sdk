@@ -21,6 +21,7 @@ export {
 } from './errors'
 
 export type {
+  QuoteStatus,
   QuoteWithRelations,
   Author,
   QuoteReference,
@@ -32,6 +33,7 @@ export type {
   SearchParams,
   CreateQuoteData,
   UpdateQuoteData,
+  ModerateQuoteData,
   CreateAuthorData,
   UpdateAuthorData,
   CreateReferenceData,

@@ -109,6 +109,49 @@ describe('QuotesResource', () => {
     })
   })
 
+  describe('submit', () => {
+    it('calls POST /quotes/:id/submit', async () => {
+      fetchFn.mockResolvedValue(mockResponse({
+        success: true,
+        data: { id: 1, content: 'Test', language: 'fr', status: 'pending', stats: { views: 0, likes: 0, shares: 0 }, created_at: '2024-01-01', updated_at: '2024-01-01' },
+      }))
+
+      const result = await quotes.submit(1)
+      const [url, opts] = fetchFn.mock.calls[0]
+      expect(url).toContain('/quotes/1/submit')
+      expect(opts.method).toBe('POST')
+      expect(result.data?.status).toBe('pending')
+    })
+  })
+
+  describe('moderate', () => {
+    it('calls POST /quotes/:id/moderate with approve', async () => {
+      fetchFn.mockResolvedValue(mockResponse({
+        success: true,
+        data: { id: 1, content: 'Test', language: 'fr', status: 'approved', stats: { views: 0, likes: 0, shares: 0 }, created_at: '2024-01-01', updated_at: '2024-01-01' },
+      }))
+
+      const result = await quotes.moderate(1, { action: 'approve' })
+      const [url, opts] = fetchFn.mock.calls[0]
+      expect(url).toContain('/quotes/1/moderate')
+      expect(opts.method).toBe('POST')
+      expect(JSON.parse(opts.body)).toEqual({ action: 'approve' })
+      expect(result.data?.status).toBe('approved')
+    })
+
+    it('calls POST /quotes/:id/moderate with reject and reason', async () => {
+      fetchFn.mockResolvedValue(mockResponse({
+        success: true,
+        data: { id: 1, content: 'Test', language: 'fr', status: 'rejected', rejection_reason: 'Not relevant', stats: { views: 0, likes: 0, shares: 0 }, created_at: '2024-01-01', updated_at: '2024-01-01' },
+      }))
+
+      const result = await quotes.moderate(1, { action: 'reject', rejection_reason: 'Not relevant' })
+      const [, opts] = fetchFn.mock.calls[0]
+      expect(JSON.parse(opts.body)).toEqual({ action: 'reject', rejection_reason: 'Not relevant' })
+      expect(result.data?.status).toBe('rejected')
+    })
+  })
+
   describe('paginate', () => {
     it('yields items across pages', async () => {
       fetchFn
