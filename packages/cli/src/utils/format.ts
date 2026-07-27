@@ -137,7 +137,7 @@ export function output(data: unknown, format: Format): void {
     }
 
     const allKeys = Object.keys(data[0] as Record<string, unknown>)
-    const keyOrder = ['id', 'content', 'name', 'language', 'type', 'author', 'reference']
+    const keyOrder = ['id', 'content', 'name', 'language', 'type', 'author', 'reference', 'quotes_count']
     const columns = keyOrder
       .filter((k) => allKeys.includes(k))
       .map((k) => ({ key: k, label: k }))

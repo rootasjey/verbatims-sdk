@@ -25,6 +25,7 @@ const authorSchema = z.object({
   description: z.string().nullable().optional(),
   dates: authorDatesSchema.optional(),
   stats: authorStatsSchema.optional(),
+  quotes_count: z.number().optional(),
   created_at: z.string().nullable(),
 })
 
@@ -37,7 +38,7 @@ export class AuthorsResource {
   constructor(private client: VerbatimsClient) {}
 
   async list(params?: ListAuthorsParams) {
-    return this.client.get('/authors', { params: params as Record<string, unknown> }, authorListResponseSchema)
+    return this.client.get('/authors', { params: { ...params, include: 'quotes_count' } as Record<string, unknown> }, authorListResponseSchema)
   }
 
   paginate(params?: ListAuthorsParams): AsyncGenerator<AuthorItem> {

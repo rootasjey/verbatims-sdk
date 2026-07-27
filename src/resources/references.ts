@@ -19,6 +19,7 @@ const referenceSchema = z.object({
   description: z.string().nullable().optional(),
   image_url: z.string().nullable().optional(),
   stats: referenceStatsSchema.optional(),
+  quotes_count: z.number().optional(),
   created_at: z.string().nullable(),
 })
 
@@ -31,7 +32,7 @@ export class ReferencesResource {
   constructor(private client: VerbatimsClient) {}
 
   async list(params?: ListReferencesParams) {
-    return this.client.get('/references', { params: params as Record<string, unknown> }, referenceListResponseSchema)
+    return this.client.get('/references', { params: { ...params, include: 'quotes_count' } as Record<string, unknown> }, referenceListResponseSchema)
   }
 
   paginate(params?: ListReferencesParams): AsyncGenerator<ReferenceItem> {

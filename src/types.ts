@@ -91,6 +91,7 @@ export interface Author {
   description?: string | null
   dates?: AuthorDates
   stats?: AuthorStats
+  quotes_count?: number
   created_at: string | null
 }
 
@@ -109,6 +110,7 @@ export interface QuoteReference {
   description?: string | null
   image_url?: string | null
   stats?: ReferenceStats
+  quotes_count?: number
   created_at: string | null
 }
 
