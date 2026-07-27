@@ -14,24 +14,13 @@
           <span class="text-muted">MIT</span>
         </a>
 
-        <figure class="mt-8 mb-12">
-          <blockquote
-            class="font-heading text-3xl md:text-5xl italic font-600 leading-tight tracking-tight max-w-160 mx-auto text-balance"
-          >
-            &ldquo;The only true wisdom is in knowing you know nothing.&rdquo;
-          </blockquote>
-          <figcaption class="text-muted text-base mt-4 font-medium tracking-wide">
-            &mdash; Socrates
-          </figcaption>
-        </figure>
-
-        <h1 class="text-lg md:text-xl font-semibold leading-tight tracking-tight mb-3">
+        <h1 class="font-heading text-5xl md:text-6xl font-bold leading-tight tracking-tight mb-4">
           TypeScript SDK for the
-          <span class="text-primary font-heading italic">Verbatims</span> quotes API
+          <span class="text-primary italic">Verbatims</span> quotes API
         </h1>
-        <p class="text-muted text-base max-w-lg mx-auto mb-8 leading-relaxed">
-          Browse, search, and manage quotes from literature, film, and music
-          &mdash; fully typed, paginated, and rate-limit-aware.
+        <p class="text-muted text-lg max-w-xl mx-auto mb-8 leading-relaxed">
+          Browse, search, and manage quotes from literature, film, and music.
+          Fully typed, paginated, and rate-limit-aware.
         </p>
 
         <div class="flex justify-center gap-3 flex-wrap">

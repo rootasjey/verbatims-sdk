@@ -105,7 +105,7 @@ function isActive(to: string) {
 }
 
 [data-theme="light"] {
-  --c-bg: #fafaf9;
+  --c-bg: #F5F5F1;
   --c-surface: #ffffff;
   --c-border: #e5e5e0;
   --c-text: #1a1a1a;
