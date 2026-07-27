@@ -28,5 +28,5 @@
 - Pas de semantic-release. La release SDK et CLI se fait via `npm version patch + npm publish` simple
 - **Provenance OIDC désactivé** (`@semantic-release/npm` avec provenance cause des échecs `ENEEDAUTH` intempestifs)
 - Le token npm (`NPM_TOKEN`) est stocké dans les secrets GitHub et passé via `NODE_AUTH_TOKEN` + `registry-url`
-- Si le package est déjà à jour sur npm, le script détecte et bump automatiquement avant publish
+- Le bump se fait toujours depuis la dernière version publiée sur npm (pas depuis la version locale du git), car `--no-git-tag-version` ne commit pas le changement et les runs CI suivants perdraient la trace du bump
 - Les deux jobs (`release-sdk` et `release-cli`) sont indépendants et peuvent échouer séparément
