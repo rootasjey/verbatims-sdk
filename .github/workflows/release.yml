@@ -31,7 +31,7 @@ jobs:
           CURRENT=$(node -p "require('./package.json').version")
           LATEST=$(npm view @verbatims/sdk version 2>/dev/null || echo "0.0.0")
           if [ "$CURRENT" = "$LATEST" ]; then
-            npm version patch --no-git-tag-version
+            node -e "const p=JSON.parse(require('fs').readFileSync('./package.json','utf8')); const v=p.version.split('.'); v[2]=+v[2]+1; p.version=v.join('.'); require('fs').writeFileSync('./package.json', JSON.stringify(p, null, 2)+'\n')"
           fi
           npm publish --ignore-scripts
         env:
