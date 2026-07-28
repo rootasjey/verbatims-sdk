@@ -86,6 +86,23 @@ export function registerReferencesCommand(program: Command) {
     })
 
   refs
+    .command('delete <id>')
+    .description('Delete a reference')
+    .option('--strategy <strategy>', 'Strategy if quotes exist: delete or anonymize')
+    .option('--yes', 'Skip confirmation')
+    .action(async (id: string, options: Record<string, string>) => {
+      if (!options.yes) {
+        const { confirm } = await import('@clack/prompts')
+        const confirmed = await confirm({ message: `Delete reference #${id}?` })
+        if (isCancel(confirmed) || !confirmed) cancel('Cancelled')
+      }
+
+      const client = await getClient()
+      await withSpinner('Deleting reference', () => client.references.delete(Number(id), options.strategy as 'delete' | 'anonymize' | undefined))
+      console.log(chalk.green(` Reference #${id} deleted`))
+    })
+
+  refs
     .command('browse')
     .description('Browse references interactively')
     .option('--type <type>', 'Filter by type')

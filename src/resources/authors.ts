@@ -61,4 +61,11 @@ export class AuthorsResource {
   async update(id: number, data: UpdateAuthorData) {
     return this.client.put(`/authors/${id}`, data, {}, authorSingleResponseSchema)
   }
+
+  async delete(id: number, strategy?: 'delete' | 'anonymize') {
+    return this.client.delete(`/authors/${id}`, strategy ? { body: { strategy } } : {}, apiResponseSchema(z.object({
+      quotesAffected: z.number(),
+      strategy: z.string().optional(),
+    })))
+  }
 }

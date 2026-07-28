@@ -63,6 +63,15 @@ const quoteTagAddResponseSchema = apiResponseSchema(z.object({
   name: z.string(),
 }))
 
+const quoteModerateResponseSchema = apiResponseSchema(z.object({
+  id: z.number(),
+  status: z.enum(['approved', 'rejected']),
+  auto_tagging: z.object({
+    matchedTagNames: z.array(z.string()),
+    attachedCount: z.number(),
+  }).nullable().optional(),
+}))
+
 type QuoteItem = z.infer<typeof quoteSchema>
 
 export class QuotesResource {
@@ -102,7 +111,7 @@ export class QuotesResource {
   }
 
   async moderate(id: number, data: ModerateQuoteData) {
-    return this.client.post(`/quotes/${id}/moderate`, data, {}, quoteSingleResponseSchema)
+    return this.client.post(`/quotes/${id}/moderate`, data, {}, quoteModerateResponseSchema)
   }
 
   async listTags(id: number) {

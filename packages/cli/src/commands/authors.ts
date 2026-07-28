@@ -81,6 +81,23 @@ export function registerAuthorsCommand(program: Command) {
     })
 
   authors
+    .command('delete <id>')
+    .description('Delete an author')
+    .option('--strategy <strategy>', 'Strategy if quotes exist: delete or anonymize')
+    .option('--yes', 'Skip confirmation')
+    .action(async (id: string, options: Record<string, string>) => {
+      if (!options.yes) {
+        const { confirm } = await import('@clack/prompts')
+        const confirmed = await confirm({ message: `Delete author #${id}?` })
+        if (isCancel(confirmed) || !confirmed) cancel('Cancelled')
+      }
+
+      const client = await getClient()
+      await withSpinner('Deleting author', () => client.authors.delete(Number(id), options.strategy as 'delete' | 'anonymize' | undefined))
+      console.log(chalk.green(` Author #${id} deleted`))
+    })
+
+  authors
     .command('browse')
     .description('Browse authors interactively')
     .option('--search <q>', 'Search authors')

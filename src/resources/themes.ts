@@ -154,7 +154,7 @@ export class ThemesResource {
   }
 
   async delete(id: number) {
-    return this.client.delete(`/themes/${id}`, {}, apiResponseSchema(z.undefined()))
+    return this.client.delete(`/themes/${id}`, {}, apiResponseSchema(z.undefined()).or(apiResponseSchema(z.object({ deleted: z.literal(true) }))))
   }
 
   async activate(id: number, isActive: boolean) {

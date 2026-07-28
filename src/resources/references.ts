@@ -55,4 +55,11 @@ export class ReferencesResource {
   async update(id: number, data: UpdateReferenceData) {
     return this.client.put(`/references/${id}`, data, {}, referenceSingleResponseSchema)
   }
+
+  async delete(id: number, strategy?: 'delete' | 'anonymize') {
+    return this.client.delete(`/references/${id}`, strategy ? { body: { strategy } } : {}, apiResponseSchema(z.object({
+      quotesAffected: z.number(),
+      strategy: z.string().optional(),
+    })))
+  }
 }

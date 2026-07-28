@@ -128,7 +128,7 @@ describe('QuotesResource', () => {
     it('calls POST /quotes/:id/moderate with approve', async () => {
       fetchFn.mockResolvedValue(mockResponse({
         success: true,
-        data: { id: 1, content: 'Test', language: 'fr', status: 'approved', stats: { views: 0, likes: 0, shares: 0 }, created_at: '2024-01-01', updated_at: '2024-01-01' },
+        data: { id: 1, status: 'approved', auto_tagging: { matchedTagNames: ['life'], attachedCount: 1 } },
       }))
 
       const result = await quotes.moderate(1, { action: 'approve' })
@@ -142,7 +142,7 @@ describe('QuotesResource', () => {
     it('calls POST /quotes/:id/moderate with reject and reason', async () => {
       fetchFn.mockResolvedValue(mockResponse({
         success: true,
-        data: { id: 1, content: 'Test', language: 'fr', status: 'rejected', rejection_reason: 'Not relevant', stats: { views: 0, likes: 0, shares: 0 }, created_at: '2024-01-01', updated_at: '2024-01-01' },
+        data: { id: 1, status: 'rejected', auto_tagging: null },
       }))
 
       const result = await quotes.moderate(1, { action: 'reject', rejection_reason: 'Not relevant' })
@@ -406,15 +406,15 @@ describe('ThemesResource', () => {
     expect(result.data?.slug).toBe('summer')
   })
 
-  it('getFeed calls GET /themes/:slug/feed', async () => {
+  it('getFeed calls GET /themes/:id/feed', async () => {
     fetchFn.mockResolvedValue(mockResponse({
       success: true,
-      data: { theme: { id: 1, slug: 'summer', name: 'Summer', description: null, language: 'en', isActive: true, isDefault: false, scheduledStart: null, scheduledEnd: null, priority: 0, config: null, createdAt: '2024-01-01', updatedAt: '2024-01-01', filters_count: 0 }, quotes: [], authors: [], references: [], total: 0 },
+      data: { theme: { slug: 'summer', name: 'Summer', description: null, config: null, filters_count: 0 }, quotes: [], authors: [], references: [], total: 0 },
     }))
 
-    await themes.getFeed('summer', { language: 'fr' })
+    await themes.getFeed(1, { language: 'fr' })
     const [url] = fetchFn.mock.calls[0]
-    expect(url).toContain('/themes/summer/feed')
+    expect(url).toContain('/themes/1/feed')
     const parsed = new URL(url, 'http://localhost')
     expect(parsed.searchParams.get('language')).toBe('fr')
   })
