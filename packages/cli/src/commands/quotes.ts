@@ -195,4 +195,53 @@ export function registerQuotesCommand(program: Command) {
         format,
       )
     })
+
+  const tags = quotes.command('tags').description('Manage quote tags')
+
+  tags
+    .command('list <id>')
+    .description('List tags for a quote')
+    .action(async (id: string) => {
+      const client = await getClient()
+      const format = getFormat(program)
+      const { data } = await withSpinner('Fetching tags', () => client.quotes.listTags(Number(id)), format)
+      output(data, format)
+    })
+
+  tags
+    .command('add <id>')
+    .description('Add a tag to a quote (by tag ID or name)')
+    .option('--tag-id <n>', 'Existing tag ID')
+    .option('--name <name>', 'Tag name (creates new tag if admin)')
+    .action(async (id: string, options: Record<string, string>) => {
+      const client = await getClient()
+      const format = getFormat(program)
+
+      const tagId = options.tagId ? Number(options.tagId) : undefined
+      const name = options.name || undefined
+
+      if (!tagId && !name) {
+        console.log(chalk.red(' Provide --tag-id or --name'))
+        process.exit(1)
+      }
+
+      const { data } = await withSpinner('Adding tag', () =>
+        client.quotes.addTag(Number(id), { tagId, name }),
+        format,
+      )
+      console.log(chalk.green(' Tag added'))
+      output(data, format)
+    })
+
+  tags
+    .command('remove <id> <tagId>')
+    .description('Remove a tag from a quote')
+    .action(async (id: string, tagId: string) => {
+      const confirmed = await confirm({ message: `Remove tag #${tagId} from quote #${id}?` })
+      if (isCancel(confirmed) || !confirmed) cancel('Cancelled')
+
+      const client = await getClient()
+      await withSpinner('Removing tag', () => client.quotes.removeTag(Number(id), Number(tagId)))
+      console.log(chalk.green(` Tag #${tagId} removed`))
+    })
 }

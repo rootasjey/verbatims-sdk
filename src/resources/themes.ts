@@ -66,33 +66,41 @@ const themeSuggestionSchema = z.object({
   updatedAt: z.string(),
 })
 
+const themeFeedThemeSchema = z.object({
+  slug: z.string(),
+  name: z.string(),
+  description: z.string().nullable(),
+  config: z.union([z.string(), z.record(z.string(), z.unknown())]).nullable(),
+  filters_count: z.number(),
+})
+
 const themeFeedSchema = z.object({
-  theme: themeSchema,
+  theme: themeFeedThemeSchema,
   quotes: z.array(z.object({
     id: z.number(),
     name: z.string(),
     language: z.string(),
-    created_at: z.string(),
+    created_at: z.string().nullable(),
     views_count: z.number(),
     likes_count: z.number(),
-    updated_at: z.string(),
+    updated_at: z.string().nullable(),
     author: z.object({ id: z.number(), name: z.string() }).optional(),
     reference: z.object({ id: z.number(), name: z.string() }).optional(),
   })),
   authors: z.array(z.object({
     id: z.number(),
     name: z.string(),
-    job: z.string(),
-    description: z.string(),
-    image_url: z.string(),
+    job: z.string().nullable(),
+    description: z.string().nullable(),
+    image_url: z.string().nullable(),
     likes_count: z.number(),
   })),
   references: z.array(z.object({
     id: z.number(),
     name: z.string(),
-    description: z.string(),
+    description: z.string().nullable(),
     primary_type: z.string(),
-    image_url: z.string(),
+    image_url: z.string().nullable(),
     likes_count: z.number(),
   })),
   total: z.number(),
@@ -107,8 +115,8 @@ export class ThemesResource {
     return this.client.get('/themes/active', { params: params as Record<string, unknown> }, apiResponseSchema(themeSchema.nullable()))
   }
 
-  async getFeed(slug: string, params?: FeedParams) {
-    return this.client.get(`/themes/${slug}/feed`, { params: params as Record<string, unknown> }, apiResponseSchema(themeFeedSchema.nullable()))
+  async getFeed(id: number, params?: FeedParams) {
+    return this.client.get(`/themes/${id}/feed`, { params: params as Record<string, unknown> }, apiResponseSchema(themeFeedSchema.nullable()))
   }
 
   async list(params?: ListThemesParams) {

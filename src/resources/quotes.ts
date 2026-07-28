@@ -2,7 +2,7 @@ import { z } from 'zod/v4'
 import type { VerbatimsClient } from '../client'
 import { apiResponseSchema } from '../types'
 import { paginate } from '../pagination'
-import type { QuoteWithRelations, ListQuotesParams, CreateQuoteData, UpdateQuoteData, ModerateQuoteData } from '../types'
+import type { QuoteWithRelations, ListQuotesParams, CreateQuoteData, UpdateQuoteData, ModerateQuoteData, AddQuoteTagData } from '../types'
 
 const quoteStatsSchema = z.object({
   views: z.number(),
@@ -57,6 +57,12 @@ const quoteDeleteResponseSchema = apiResponseSchema(z.undefined()).or(z.object({
   data: z.unknown().optional(),
 }))
 
+const quoteTagListResponseSchema = apiResponseSchema(z.array(quoteTagSchema))
+const quoteTagAddResponseSchema = apiResponseSchema(z.object({
+  id: z.number(),
+  name: z.string(),
+}))
+
 type QuoteItem = z.infer<typeof quoteSchema>
 
 export class QuotesResource {
@@ -99,8 +105,12 @@ export class QuotesResource {
     return this.client.post(`/quotes/${id}/moderate`, data, {}, quoteSingleResponseSchema)
   }
 
-  async addTags(id: number, tagIds: number[]) {
-    return this.client.post(`/quotes/${id}/tags`, { tag_ids: tagIds }, {}, quoteSingleResponseSchema)
+  async listTags(id: number) {
+    return this.client.get(`/quotes/${id}/tags`, {}, quoteTagListResponseSchema)
+  }
+
+  async addTag(id: number, data: AddQuoteTagData) {
+    return this.client.post(`/quotes/${id}/tags`, data, {}, quoteTagAddResponseSchema)
   }
 
   async removeTag(id: number, tagId: number) {

@@ -213,14 +213,14 @@ export function registerThemesCommand(program: Command) {
     })
 
   themes
-    .command('feed <slug>')
+    .command('feed <id>')
     .description('Get the curated feed for a theme')
     .option('--language <lang>', 'Language')
-    .action(async (slug: string, options: Record<string, string>) => {
+    .action(async (id: string, options: Record<string, string>) => {
       const client = await getClient()
       const format = getFormat(program)
       const { data } = await withSpinner('Fetching theme feed', () =>
-        client.themes.getFeed(slug, { language: options.language }),
+        client.themes.getFeed(Number(id), { language: options.language }),
         format,
       )
       if (!data) {

@@ -307,10 +307,10 @@ export interface ThemeFeedQuote {
   id: number
   name: string
   language: string
-  created_at: string
+  created_at: string | null
   views_count: number
   likes_count: number
-  updated_at: string
+  updated_at: string | null
   author?: { id: number; name: string }
   reference?: { id: number; name: string }
 }
@@ -318,23 +318,31 @@ export interface ThemeFeedQuote {
 export interface ThemeFeedAuthor {
   id: number
   name: string
-  job: string
-  description: string
-  image_url: string
+  job: string | null
+  description: string | null
+  image_url: string | null
   likes_count: number
 }
 
 export interface ThemeFeedReference {
   id: number
   name: string
-  description: string
+  description: string | null
   primary_type: string
-  image_url: string
+  image_url: string | null
   likes_count: number
 }
 
+export interface ThemeFeedTheme {
+  slug: string
+  name: string
+  description: string | null
+  config: string | Record<string, unknown> | null
+  filters_count: number
+}
+
 export interface ThemeFeed {
-  theme: Theme
+  theme: ThemeFeedTheme
   quotes: ThemeFeedQuote[]
   authors: ThemeFeedAuthor[]
   references: ThemeFeedReference[]
@@ -380,6 +388,11 @@ export interface UpdateThemeData {
   scheduled_end?: string | null
   config?: Record<string, unknown> | string | null
   translations?: Array<{ language: string; name: string; description?: string | null }>
+}
+
+export interface AddQuoteTagData {
+  tagId?: number
+  name?: string
 }
 
 export interface AddFilterData {
