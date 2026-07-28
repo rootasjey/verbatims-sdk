@@ -442,6 +442,10 @@ export interface FeedParams {
   language?: string
 }
 
+export interface UploadedImage {
+  url: string
+}
+
 export interface ThemeSuggestionsQuery {
   ai?: boolean
   tags?: string

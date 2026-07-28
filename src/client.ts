@@ -191,6 +191,38 @@ export class VerbatimsClient {
   async delete<T>(path: string, opts?: RequestOptions, schema?: z.ZodType<T>): Promise<T> {
     return this.request(path, { ...opts, method: 'DELETE' }, schema ?? z.unknown() as z.ZodType<T>)
   }
+
+  async uploadFile<T>(path: string, file: Blob, fieldName: string = 'file', schema?: z.ZodType<T>): Promise<T> {
+    const formData = new FormData()
+    formData.append(fieldName, file)
+    const url = this.buildUrl(path)
+    const method = 'POST'
+
+    const response = await this.fetchFn(url, {
+      method,
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Accept': 'application/json',
+      },
+      body: formData,
+      signal: AbortSignal.timeout(this.timeout),
+    })
+
+    const text = await response.text()
+    let json: unknown
+    try {
+      json = JSON.parse(text)
+    } catch {
+      throw new VerbatimsError(`Invalid JSON response: ${text.slice(0, 200)}`, response.status)
+    }
+
+    if (!response.ok) {
+      this.handleError(response.status, json, null)
+    }
+
+    const resolvedSchema = schema ?? z.unknown() as z.ZodType<T>
+    return resolvedSchema.parse(json)
+  }
 }
 
 function anySignal(signals: AbortSignal[]): AbortSignal {

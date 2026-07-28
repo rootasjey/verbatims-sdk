@@ -5,6 +5,7 @@ import { getClient } from '../utils/client.js'
 import { output, type Format } from '../utils/format.js'
 import { withSpinner } from '../utils/spinner.js'
 import { browse } from '../utils/browse.js'
+import { uploadImageFromPath } from '../utils/image.js'
 
 function getFormat(program: Command): Format {
   return (program.opts().format ?? 'table') as Format
@@ -51,6 +52,7 @@ export function registerReferencesCommand(program: Command) {
     .option('--language <lang>', 'Original language')
     .option('--release-date <date>', 'Release date')
     .option('--image-url <url>', 'Image URL')
+    .option('--image-path <path>', 'Local image file path')
     .action(async (options: Record<string, string>) => {
       const client = await getClient()
       const format = getFormat(program)
@@ -61,6 +63,12 @@ export function registerReferencesCommand(program: Command) {
       const primaryType = options.type ?? await text({ message: 'Primary type' })
       if (isCancel(primaryType)) cancel('Cancelled')
 
+      let image_url: string | null = options.imageUrl || null
+      const createImagePath = options.imagePath
+      if (createImagePath) {
+        image_url = await withSpinner('Uploading image', () => uploadImageFromPath(client, createImagePath), format)
+      }
+
       const { data } = await withSpinner('Creating reference', () =>
         client.references.create({
           name: name as string,
@@ -70,7 +78,7 @@ export function registerReferencesCommand(program: Command) {
           language: options.language,
           original_language: options.language,
           release_date: options.releaseDate ?? null,
-          image_url: options.imageUrl ?? null,
+          image_url,
         }),
         format,
       )
@@ -87,6 +95,7 @@ export function registerReferencesCommand(program: Command) {
     .option('--language <lang>', 'Language')
     .option('--release-date <date>', 'Release date')
     .option('--image-url <url>', 'Image URL')
+    .option('--image-path <path>', 'Local image file path')
     .action(async (id: string, options: Record<string, string>) => {
       const client = await getClient()
       const format = getFormat(program)
@@ -98,6 +107,10 @@ export function registerReferencesCommand(program: Command) {
       if (options.language !== undefined) data_.language = options.language || null
       if (options.releaseDate !== undefined) data_.release_date = options.releaseDate || null
       if (options.imageUrl !== undefined) data_.image_url = options.imageUrl || null
+      const updateImagePath = options.imagePath
+      if (updateImagePath !== undefined) {
+        data_.image_url = await withSpinner('Uploading image', () => uploadImageFromPath(client, updateImagePath), format)
+      }
 
       const { data } = await withSpinner('Updating reference', () => client.references.update(Number(id), data_ as any), format)
       console.log(chalk.green(' Reference updated'))

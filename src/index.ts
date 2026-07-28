@@ -1,3 +1,4 @@
+import { z } from 'zod/v4'
 import { VerbatimsClient as BaseClient } from './client'
 import { QuotesResource } from './resources/quotes'
 import { AuthorsResource } from './resources/authors'
@@ -6,6 +7,8 @@ import { TagsResource } from './resources/tags'
 import { CollectionsResource } from './resources/collections'
 import { SearchResource } from './resources/search'
 import { ThemesResource } from './resources/themes'
+import type { UploadedImage } from './types'
+import { apiResponseSchema } from './types'
 
 export type { ClientOptions } from './client'
 export { paginate } from './pagination'
@@ -62,6 +65,7 @@ export type {
   ActiveThemeParams,
   FeedParams,
   ThemeSuggestionsQuery,
+  UploadedImage,
 } from './types'
 
 export class VerbatimsClient extends BaseClient {
@@ -82,5 +86,10 @@ export class VerbatimsClient extends BaseClient {
     this.collections = new CollectionsResource(this)
     this.search = new SearchResource(this)
     this.themes = new ThemesResource(this)
+  }
+
+  async uploadImage(file: Blob) {
+    const uploadSchema = apiResponseSchema(z.object({ url: z.string() }))
+    return this.uploadFile('/upload/image', file, 'image', uploadSchema) as Promise<{ success: boolean; data: UploadedImage }>
   }
 }

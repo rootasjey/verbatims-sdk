@@ -5,6 +5,7 @@ import { getClient } from '../utils/client.js'
 import { output, type Format } from '../utils/format.js'
 import { withSpinner } from '../utils/spinner.js'
 import { browse } from '../utils/browse.js'
+import { uploadImageFromPath } from '../utils/image.js'
 
 function getFormat(program: Command): Format {
   return (program.opts().format ?? 'table') as Format
@@ -48,6 +49,7 @@ export function registerAuthorsCommand(program: Command) {
     .option('--job <job>', 'Job title')
     .option('--description <text>', 'Description')
     .option('--image-url <url>', 'Image URL')
+    .option('--image-path <path>', 'Local image file path')
     .option('--fictional', 'Mark as fictional')
     .action(async (options: Record<string, string>) => {
       const client = await getClient()
@@ -56,12 +58,18 @@ export function registerAuthorsCommand(program: Command) {
       const name = options.name ?? await text({ message: 'Author name', validate: (v) => !v ? 'Required' : undefined })
       if (isCancel(name)) cancel('Cancelled')
 
+      let image_url: string | null = options.imageUrl || null
+      const imagePath = options.imagePath
+      if (imagePath) {
+        image_url = await withSpinner('Uploading image', () => uploadImageFromPath(client, imagePath), format)
+      }
+
       const { data } = await withSpinner('Creating author', () =>
         client.authors.create({
           name: name as string,
           job: options.job ?? null,
           description: options.description ?? null,
-          image_url: options.imageUrl ?? null,
+          image_url,
           fictional: options.fictional !== undefined ? true : undefined,
         }),
         format,
@@ -77,6 +85,7 @@ export function registerAuthorsCommand(program: Command) {
     .option('--job <job>', 'Job title')
     .option('--description <text>', 'Description')
     .option('--image-url <url>', 'Image URL')
+    .option('--image-path <path>', 'Local image file path')
     .option('--fictional', 'Mark as fictional')
     .option('--no-fictional', 'Mark as not fictional')
     .action(async (id: string, options: Record<string, string>) => {
@@ -88,6 +97,10 @@ export function registerAuthorsCommand(program: Command) {
       if (options.job !== undefined) data_.job = options.job || null
       if (options.description !== undefined) data_.description = options.description || null
       if (options.imageUrl !== undefined) data_.image_url = options.imageUrl || null
+      const updateImagePath = options.imagePath
+      if (updateImagePath !== undefined) {
+        data_.image_url = await withSpinner('Uploading image', () => uploadImageFromPath(client, updateImagePath), format)
+      }
       if (options.fictional !== undefined) data_.is_fictional = true
       if (options.noFictional !== undefined) data_.is_fictional = false
 
