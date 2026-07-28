@@ -21,6 +21,11 @@
 - `npm test` — vitest run
 - `npm run test:watch` — vitest en mode watch
 
+# Commit messages
+
+- **Tous les messages de commit doivent être en anglais.**
+- Utiliser les préfixes conventionnels : `feat:`, `fix:`, `chore:`, `refactor:`, `docs:`, `test:`.
+
 # Release (CI)
 
 - **Release workflow** : `.github/workflows/release.yml`
