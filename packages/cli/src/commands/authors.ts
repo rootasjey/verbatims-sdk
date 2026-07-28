@@ -47,6 +47,8 @@ export function registerAuthorsCommand(program: Command) {
     .option('--name <name>', 'Author name')
     .option('--job <job>', 'Job title')
     .option('--description <text>', 'Description')
+    .option('--image-url <url>', 'Image URL')
+    .option('--fictional', 'Mark as fictional')
     .action(async (options: Record<string, string>) => {
       const client = await getClient()
       const format = getFormat(program)
@@ -55,7 +57,13 @@ export function registerAuthorsCommand(program: Command) {
       if (isCancel(name)) cancel('Cancelled')
 
       const { data } = await withSpinner('Creating author', () =>
-        client.authors.create({ name: name as string, job: options.job ?? null, description: options.description ?? null }),
+        client.authors.create({
+          name: name as string,
+          job: options.job ?? null,
+          description: options.description ?? null,
+          image_url: options.imageUrl ?? null,
+          fictional: options.fictional !== undefined ? true : undefined,
+        }),
         format,
       )
       console.log(chalk.green(' Author created'))
@@ -66,14 +74,22 @@ export function registerAuthorsCommand(program: Command) {
     .command('update <id>')
     .description('Update an author')
     .option('--name <name>', 'Author name')
+    .option('--job <job>', 'Job title')
     .option('--description <text>', 'Description')
+    .option('--image-url <url>', 'Image URL')
+    .option('--fictional', 'Mark as fictional')
+    .option('--no-fictional', 'Mark as not fictional')
     .action(async (id: string, options: Record<string, string>) => {
       const client = await getClient()
       const format = getFormat(program)
 
       const data_: Record<string, unknown> = {}
       if (options.name) data_.name = options.name
-      if (options.description !== undefined) data_.description = options.description
+      if (options.job !== undefined) data_.job = options.job || null
+      if (options.description !== undefined) data_.description = options.description || null
+      if (options.imageUrl !== undefined) data_.image_url = options.imageUrl || null
+      if (options.fictional !== undefined) data_.is_fictional = true
+      if (options.noFictional !== undefined) data_.is_fictional = false
 
       const { data } = await withSpinner('Updating author', () => client.authors.update(Number(id), data_ as any), format)
       console.log(chalk.green(' Author updated'))

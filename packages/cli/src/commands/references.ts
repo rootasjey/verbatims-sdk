@@ -49,6 +49,8 @@ export function registerReferencesCommand(program: Command) {
     .option('--type <type>', 'Primary type')
     .option('--description <text>', 'Description')
     .option('--language <lang>', 'Original language')
+    .option('--release-date <date>', 'Release date')
+    .option('--image-url <url>', 'Image URL')
     .action(async (options: Record<string, string>) => {
       const client = await getClient()
       const format = getFormat(program)
@@ -60,7 +62,16 @@ export function registerReferencesCommand(program: Command) {
       if (isCancel(primaryType)) cancel('Cancelled')
 
       const { data } = await withSpinner('Creating reference', () =>
-        client.references.create({ name: name as string, type: primaryType as string, primary_type: primaryType as string, description: options.description ?? null, language: options.language, original_language: options.language }),
+        client.references.create({
+          name: name as string,
+          type: primaryType as string,
+          primary_type: primaryType as string,
+          description: options.description ?? null,
+          language: options.language,
+          original_language: options.language,
+          release_date: options.releaseDate ?? null,
+          image_url: options.imageUrl ?? null,
+        }),
         format,
       )
       console.log(chalk.green(' Reference created'))
@@ -71,14 +82,22 @@ export function registerReferencesCommand(program: Command) {
     .command('update <id>')
     .description('Update a reference')
     .option('--name <name>', 'Reference name')
+    .option('--type <type>', 'Primary type')
     .option('--description <text>', 'Description')
+    .option('--language <lang>', 'Language')
+    .option('--release-date <date>', 'Release date')
+    .option('--image-url <url>', 'Image URL')
     .action(async (id: string, options: Record<string, string>) => {
       const client = await getClient()
       const format = getFormat(program)
 
       const data_: Record<string, unknown> = {}
-      if (options.name) { data_.name = options.name }
-      if (options.description !== undefined) data_.description = options.description
+      if (options.name) data_.name = options.name
+      if (options.type !== undefined) { data_.type = options.type; data_.primary_type = options.type }
+      if (options.description !== undefined) data_.description = options.description || null
+      if (options.language !== undefined) data_.language = options.language || null
+      if (options.releaseDate !== undefined) data_.release_date = options.releaseDate || null
+      if (options.imageUrl !== undefined) data_.image_url = options.imageUrl || null
 
       const { data } = await withSpinner('Updating reference', () => client.references.update(Number(id), data_ as any), format)
       console.log(chalk.green(' Reference updated'))
