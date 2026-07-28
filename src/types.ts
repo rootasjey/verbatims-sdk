@@ -130,6 +130,7 @@ export interface ListQuotesParams {
   author_id?: number
   reference_id?: number
   search?: string
+  q?: string
   tag?: string
   status?: QuoteStatus
   sort_by?: string
@@ -264,15 +265,15 @@ export interface Theme {
   scheduledStart: string | null
   scheduledEnd: string | null
   priority: number
-  config: Record<string, unknown> | null
-  createdAt: string
-  updatedAt: string
-  filters_count: number
+  config: string | Record<string, unknown> | null
+  createdAt: string | null
+  updatedAt: string | null
+  filters_count?: number
   pending_suggestions_count?: number
 }
 
 export interface ThemeFilter {
-  id: number
+  id?: number
   themeId: number
   type: string
   value: string
@@ -364,7 +365,7 @@ export interface CreateThemeData {
   priority?: number
   scheduled_start?: string | null
   scheduled_end?: string | null
-  config?: Record<string, unknown> | null
+  config?: string | Record<string, unknown> | null
 }
 
 export interface UpdateThemeData {

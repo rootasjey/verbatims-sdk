@@ -33,10 +33,10 @@ const themeSchema = z.object({
   scheduledStart: z.string().nullable(),
   scheduledEnd: z.string().nullable(),
   priority: z.number(),
-  config: z.record(z.string(), z.unknown()).nullable(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  filters_count: z.number(),
+  config: z.union([z.string(), z.record(z.string(), z.unknown())]).nullable(),
+  createdAt: z.string().nullable(),
+  updatedAt: z.string().nullable(),
+  filters_count: z.number().optional(),
   pending_suggestions_count: z.number().optional(),
 })
 
@@ -44,7 +44,7 @@ const themeListResponseSchema = apiResponseSchema(z.array(themeSchema))
 const themeSingleResponseSchema = apiResponseSchema(themeSchema)
 
 const themeFilterSchema = z.object({
-  id: z.number(),
+  id: z.number().optional(),
   themeId: z.number(),
   type: z.string(),
   value: z.string(),
@@ -163,6 +163,10 @@ export class ThemesResource {
 
   async removeFilter(id: number, filterId: number) {
     return this.client.delete(`/themes/${id}/filters/${filterId}`, {}, apiResponseSchema(z.undefined()))
+  }
+
+  async getFilters(id: number) {
+    return this.client.get(`/themes/${id}/filters`, {}, apiResponseSchema(z.array(themeFilterSchema)))
   }
 
   async listSuggestions(id: number) {

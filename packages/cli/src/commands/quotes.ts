@@ -35,6 +35,7 @@ export function registerQuotesCommand(program: Command) {
           author_id: options.author ? Number(options.author) : undefined,
           tag: options.tag,
           search: options.search,
+          q: options.search,
           status: options.status as any,
           sort_by: options.sortBy,
           sort_order: options.sortOrder as 'asc' | 'desc',
@@ -154,7 +155,7 @@ export function registerQuotesCommand(program: Command) {
 
       let rejection_reason: string | undefined | null
       if (action === 'reject') {
-        rejection_reason = options.reason ?? await text({ message: 'Rejection reason' })
+        rejection_reason = options.reason ?? await text({ message: 'Rejection reason' }) as string
         if (isCancel(rejection_reason)) cancel('Cancelled')
       }
 
@@ -186,6 +187,7 @@ export function registerQuotesCommand(program: Command) {
           author_id: options.author ? Number(options.author) : undefined,
           tag: options.tag,
           search: options.search,
+          q: options.search,
           status: options.status as any,
           sort_by: options.sortBy,
           sort_order: options.sortOrder as 'asc' | 'desc',

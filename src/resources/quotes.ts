@@ -98,4 +98,12 @@ export class QuotesResource {
   async moderate(id: number, data: ModerateQuoteData) {
     return this.client.post(`/quotes/${id}/moderate`, data, {}, quoteSingleResponseSchema)
   }
+
+  async addTags(id: number, tagIds: number[]) {
+    return this.client.post(`/quotes/${id}/tags`, { tag_ids: tagIds }, {}, quoteSingleResponseSchema)
+  }
+
+  async removeTag(id: number, tagId: number) {
+    return this.client.delete(`/quotes/${id}/tags/${tagId}`, {}, apiResponseSchema(z.undefined()))
+  }
 }

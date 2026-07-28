@@ -57,7 +57,11 @@ export function registerThemesCommand(program: Command) {
     .option('--active', 'Set as active')
     .option('--default', 'Set as default')
     .option('--priority <n>', 'Priority', '0')
-    .action(async (options: Record<string, string>) => {
+    .option('--scheduled-start <date>', 'Scheduled start date (ISO 8601)')
+    .option('--scheduled-end <date>', 'Scheduled end date (ISO 8601)')
+    .option('--config <json>', 'Theme configuration as JSON')
+    .option('--translation <lang:name:desc>', 'Add a translation (can be repeated)', (val: string, prev: string[]) => { prev.push(val); return prev }, [])
+    .action(async (options: Record<string, string | string[]>) => {
       const client = await getClient()
       const format = getFormat(program)
 
@@ -70,15 +74,33 @@ export function registerThemesCommand(program: Command) {
       const description = options.description ?? await text({ message: 'Description (optional)', initialValue: '' })
       if (isCancel(description)) cancel('Cancelled')
 
+      const translations = Array.isArray(options.translation) ? options.translation.map((t: string) => {
+        const [lang, tName, tDesc] = t.split(':')
+        return { language: lang!, name: tName!, description: tDesc || null }
+      }) : undefined
+
+      let config: Record<string, unknown> | string | null | undefined
+      if (options.config) {
+        try {
+          config = JSON.parse(options.config as string)
+        } catch {
+          config = options.config as string
+        }
+      }
+
       const { data } = await withSpinner('Creating theme', () =>
         client.themes.create({
           slug: slug as string,
           name: name as string,
           description: (description as string) || null,
-          language: options.language || null,
+          language: (options.language as string) || null,
           is_active: options.active !== undefined ? true : undefined,
           is_default: options.default !== undefined ? true : undefined,
           priority: options.priority ? Number(options.priority) : undefined,
+          scheduled_start: (options.scheduledStart as string) || null,
+          scheduled_end: (options.scheduledEnd as string) || null,
+          config,
+          translations,
         }),
         format,
       )
@@ -94,7 +116,11 @@ export function registerThemesCommand(program: Command) {
     .option('--description <text>', 'Description')
     .option('--language <lang>', 'Language')
     .option('--priority <n>', 'Priority')
-    .action(async (id: string, options: Record<string, string>) => {
+    .option('--scheduled-start <date>', 'Scheduled start date (ISO 8601)')
+    .option('--scheduled-end <date>', 'Scheduled end date (ISO 8601)')
+    .option('--config <json>', 'Theme configuration as JSON')
+    .option('--translation <lang:name:desc>', 'Add a translation (can be repeated)', (val: string, prev: string[]) => { prev.push(val); return prev }, [])
+    .action(async (id: string, options: Record<string, string | string[]>) => {
       const client = await getClient()
       const format = getFormat(program)
 
@@ -102,8 +128,23 @@ export function registerThemesCommand(program: Command) {
       if (options.slug) data_.slug = options.slug
       if (options.name) data_.name = options.name
       if (options.description !== undefined) data_.description = options.description || null
-      if (options.language !== undefined) data_.language = options.language || null
+      if (options.language !== undefined) data_.language = (options.language as string) || null
       if (options.priority !== undefined) data_.priority = Number(options.priority)
+      if (options.scheduledStart !== undefined) data_.scheduled_start = (options.scheduledStart as string) || null
+      if (options.scheduledEnd !== undefined) data_.scheduled_end = (options.scheduledEnd as string) || null
+      if (options.config !== undefined) {
+        try {
+          data_.config = JSON.parse(options.config as string)
+        } catch {
+          data_.config = options.config as string
+        }
+      }
+      if (Array.isArray(options.translation) && options.translation.length > 0) {
+        data_.translations = options.translation.map((t: string) => {
+          const [lang, tName, tDesc] = t.split(':')
+          return { language: lang!, name: tName!, description: tDesc || null }
+        })
+      }
 
       const { data } = await withSpinner('Updating theme', () => client.themes.update(Number(id), data_ as any), format)
       console.log(chalk.green(' Theme updated'))
