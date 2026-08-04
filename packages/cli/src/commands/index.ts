@@ -7,6 +7,7 @@ import { registerCollectionsCommand } from './collections.js'
 import { registerSearchCommand } from './search.js'
 import { registerConfigCommand } from './config.js'
 import { registerThemesCommand } from './themes.js'
+import { registerSocialCommand } from './social.js'
 
 export function registerCommands(program: Command) {
   registerQuotesCommand(program)
@@ -17,4 +18,5 @@ export function registerCommands(program: Command) {
   registerSearchCommand(program)
   registerConfigCommand(program)
   registerThemesCommand(program)
+  registerSocialCommand(program)
 }

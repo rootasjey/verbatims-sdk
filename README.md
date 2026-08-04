@@ -38,12 +38,42 @@ for await (const quote of vb.quotes.paginate({ language: 'fr' })) {
 
 | Resource | Methods |
 |---|---|
-| `vb.quotes` | `list`, `get`, `create`, `update`, `delete`, `paginate` |
+| `vb.quotes` | `list`, `get`, `create`, `update`, `delete`, `submit`, `moderate`, `paginate` |
 | `vb.authors` | `list`, `get`, `create`, `update`, `paginate` |
 | `vb.references` | `list`, `get`, `create`, `update`, `paginate` |
 | `vb.tags` | `list`, `paginate` |
 | `vb.collections` | `create`, `addQuote`, `removeQuote` |
 | `vb.search` | `query`, `paginate` |
+| `vb.themes` | `list`, `get`, `create`, `update`, `delete`, `activate`, `setDefault`, `getActive`, `getFeed`, `paginate` |
+| `vb.social` | `listPlatforms`, `listQueue`, `getQueueItem`, `addToQueue`, `addRandomToQueue`, `removeQueueItem`, `clearQueue`, `reorderQueueItem`, `runNow`, `requeueQueueItem`, `listPosts`, `paginateQueue` |
+
+## Social queue
+
+Manage the auto-post queue of quotes on social platforms (x, bluesky, instagram, threads, facebook, pinterest).
+
+```ts
+// List platforms with queue stats
+const { data } = await vb.social.listPlatforms()
+
+// List queued items for a platform
+const { data } = await vb.social.listQueue({ platform: 'bluesky', status: 'queued', limit: 20 })
+
+// Enqueue approved quotes
+const { data } = await vb.social.addToQueue({ quote_ids: [42, 57], platform: 'bluesky' })
+
+// Enqueue 5 random approved quotes
+const { data } = await vb.social.addRandomToQueue({ platform: 'x', count: 5, language: 'fr' })
+
+// Publish the next eligible item immediately
+const { data } = await vb.social.runNow({ platform: 'bluesky' })
+
+// Iterate through all queue items
+for await (const item of vb.social.paginateQueue({ platform: 'x' })) {
+  console.log(item.id, item.quote_text)
+}
+```
+
+Requires an API key with the `moderator`/`admin` role and the `social:read` / `social:write` permissions.
 
 ## Nuxt module
 

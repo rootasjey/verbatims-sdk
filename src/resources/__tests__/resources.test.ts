@@ -7,6 +7,7 @@ import { TagsResource } from '../tags'
 import { CollectionsResource } from '../collections'
 import { SearchResource } from '../search'
 import { ThemesResource } from '../themes'
+import { SocialResource } from '../social'
 
 function mockResponse(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -625,5 +626,254 @@ describe('SearchResource', () => {
       results.push(item)
     }
     expect(results).toHaveLength(2)
+  })
+})
+
+const queueItemFixture = {
+  id: 1,
+  quote_id: 42,
+  source_type: 'quote',
+  source_id: 42,
+  platform: 'x',
+  status: 'queued',
+  position: 3,
+  scheduled_for: null,
+  created_at: '2026-01-01T00:00:00.000Z',
+  updated_at: '2026-01-01T00:00:00.000Z',
+  published_post_url: null,
+  published_external_post_id: null,
+  published_posted_at: null,
+  error_message: null,
+  quote_posts_count: 0,
+  quote_text: 'Test quote',
+  quote_language: 'en',
+  author_name: 'Jane Doe',
+  reference_name: null,
+  resolved_content: {
+    source_type: 'quote',
+    source_id: 42,
+    primary_text: 'Test quote',
+    secondary_text: null,
+    canonical_path: '/quotes/42',
+    title: null,
+    subtitle: null,
+    language: 'en',
+  },
+}
+
+describe('SocialResource', () => {
+  let fetchFn: ReturnType<typeof vi.fn>
+  let social: SocialResource
+
+  beforeEach(() => {
+    const mock = createMockClient()
+    fetchFn = mock.fetchFn
+    social = new SocialResource(mock.client)
+  })
+
+  it('listPlatforms calls GET /social/platforms', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: [{ platform: 'x', label: 'X', enabled: true, queue: { queued: 3, processing: 0, posted: 12, failed: 1 } }],
+    }))
+
+    const result = await social.listPlatforms()
+    const [url] = fetchFn.mock.calls[0]
+    expect(url).toContain('/social/platforms')
+    expect(result.data![0].platform).toBe('x')
+    expect(result.data![0].queue.queued).toBe(3)
+  })
+
+  it('listQueue calls GET /social/queue with params and parses queue + stats', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: {
+        queue: [queueItemFixture],
+        stats: { queued: 1, processing: 0, posted: 0, failed: 0 },
+      },
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1, hasMore: false },
+    }))
+
+    const result = await social.listQueue({ platform: 'x', status: 'queued', search: 'test' })
+    const [url] = fetchFn.mock.calls[0]
+    const parsed = new URL(url, 'http://localhost')
+    expect(parsed.pathname).toContain('/social/queue')
+    expect(parsed.searchParams.get('platform')).toBe('x')
+    expect(parsed.searchParams.get('status')).toBe('queued')
+    expect(parsed.searchParams.get('search')).toBe('test')
+    expect(result.data!.queue).toHaveLength(1)
+    expect(result.data!.queue[0].quote_text).toBe('Test quote')
+    expect(result.data!.stats.queued).toBe(1)
+  })
+
+  it('paginateQueue yields items across pages', async () => {
+    fetchFn
+      .mockResolvedValueOnce(mockResponse({
+        success: true,
+        data: {
+          queue: [{ ...queueItemFixture, id: 1 }],
+          stats: { queued: 2, processing: 0, posted: 0, failed: 0 },
+        },
+        pagination: { page: 1, limit: 1, total: 2, totalPages: 2, hasMore: true },
+      }))
+      .mockResolvedValueOnce(mockResponse({
+        success: true,
+        data: {
+          queue: [{ ...queueItemFixture, id: 2 }],
+          stats: { queued: 2, processing: 0, posted: 0, failed: 0 },
+        },
+        pagination: { page: 2, limit: 1, total: 2, totalPages: 2, hasMore: false },
+      }))
+
+    const results = []
+    for await (const item of social.paginateQueue({ platform: 'x' })) {
+      results.push(item)
+    }
+    expect(results).toHaveLength(2)
+    expect(results[1].id).toBe(2)
+  })
+
+  it('getQueueItem calls GET /social/queue/:id', async () => {
+    fetchFn.mockResolvedValue(mockResponse({ success: true, data: queueItemFixture }))
+
+    const result = await social.getQueueItem(1)
+    const [url] = fetchFn.mock.calls[0]
+    expect(url).toContain('/social/queue/1')
+    expect(result.data!.id).toBe(1)
+  })
+
+  it('addToQueue calls POST /social/queue with body and parses count', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: [{ id: 1, quote_id: 42, source_type: 'quote', source_id: 42, position: 1, status: 'queued' }],
+      count: 1,
+    }))
+
+    const result = await social.addToQueue({ quote_ids: [42], platform: 'bluesky', scheduled_for: null })
+    const [url, opts] = fetchFn.mock.calls[0]
+    expect(url).toContain('/social/queue')
+    expect(opts.method).toBe('POST')
+    const body = JSON.parse(opts.body)
+    expect(body.quote_ids).toEqual([42])
+    expect(body.platform).toBe('bluesky')
+    expect(result.count).toBe(1)
+    expect(result.data![0].quote_id).toBe(42)
+  })
+
+  it('addRandomToQueue calls POST /social/queue/bulk-random', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: [{ id: 1, quote_id: 42, source_type: 'quote', source_id: 42, position: 1 }],
+      count: 1,
+    }))
+
+    await social.addRandomToQueue({ platform: 'x', count: 5, language: 'fr' })
+    const [url, opts] = fetchFn.mock.calls[0]
+    expect(url).toContain('/social/queue/bulk-random')
+    expect(opts.method).toBe('POST')
+    expect(JSON.parse(opts.body).count).toBe(5)
+  })
+
+  it('removeQueueItem calls DELETE /social/queue/:id', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: { deleted: true, id: 1, sourceType: 'quote', sourceId: 42 },
+    }))
+
+    const result = await social.removeQueueItem(1)
+    const [url, opts] = fetchFn.mock.calls[0]
+    expect(url).toContain('/social/queue/1')
+    expect(opts.method).toBe('DELETE')
+    expect(result.data!.deleted).toBe(true)
+  })
+
+  it('clearQueue calls POST /social/queue/clear with confirm', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: {
+        deleted: true,
+        platform: 'x',
+        deletedCount: 3,
+        sourceTypes: [{ sourceType: 'quote', count: 3 }],
+      },
+    }))
+
+    const result = await social.clearQueue({ platform: 'x', confirm: true, scope: 'finished' })
+    const [, opts] = fetchFn.mock.calls[0]
+    expect(opts.method).toBe('POST')
+    const body = JSON.parse(opts.body)
+    expect(body.confirm).toBe(true)
+    expect(body.scope).toBe('finished')
+    expect(result.data!.deletedCount).toBe(3)
+  })
+
+  it('reorderQueueItem calls POST /social/queue/reorder with before_id', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: { moved: true, id: 1, position: 2 },
+    }))
+
+    const result = await social.reorderQueueItem({ id: 1, before_id: 5 })
+    const [, opts] = fetchFn.mock.calls[0]
+    expect(opts.method).toBe('POST')
+    expect(JSON.parse(opts.body).before_id).toBe(5)
+    expect(result.data!.moved).toBe(true)
+  })
+
+  it('runNow calls POST /social/queue/run-now with platform', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: { success: true, published: 1 },
+    }))
+
+    const result = await social.runNow({ platform: 'bluesky' })
+    const [, opts] = fetchFn.mock.calls[0]
+    expect(opts.method).toBe('POST')
+    expect(JSON.parse(opts.body).platform).toBe('bluesky')
+    expect(result.data!.success).toBe(true)
+  })
+
+  it('requeueQueueItem calls POST /social/queue/:id/requeue', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: { requeued: true, id: 1 },
+    }))
+
+    const result = await social.requeueQueueItem(1)
+    const [url, opts] = fetchFn.mock.calls[0]
+    expect(url).toContain('/social/queue/1/requeue')
+    expect(opts.method).toBe('POST')
+    expect(result.data!.requeued).toBe(true)
+  })
+
+  it('listPosts calls GET /social/posts with filters', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: {
+        posts: [{
+          id: 1,
+          quote_id: 42,
+          source_type: 'quote',
+          source_id: 42,
+          queue_id: 1,
+          platform: 'x',
+          status: 'success',
+          post_text: 'Test',
+          post_url: 'https://x.com/status/1',
+          external_post_id: '1',
+          error_message: null,
+          posted_at: '2026-01-01T00:00:00.000Z',
+          created_at: '2026-01-01T00:00:00.000Z',
+        }],
+      },
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1, hasMore: false },
+    }))
+
+    const result = await social.listPosts({ platform: 'x', status: 'success' })
+    const [url] = fetchFn.mock.calls[0]
+    const parsed = new URL(url, 'http://localhost')
+    expect(parsed.pathname).toContain('/social/posts')
+    expect(parsed.searchParams.get('status')).toBe('success')
+    expect(result.data!.posts[0].post_url).toBe('https://x.com/status/1')
   })
 })

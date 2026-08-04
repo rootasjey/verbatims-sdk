@@ -451,3 +451,130 @@ export interface ThemeSuggestionsQuery {
   tags?: string
   language?: string
 }
+
+// --- Social queue / auto-post types ---
+
+export type SocialPlatform = 'x' | 'bluesky' | 'instagram' | 'threads' | 'facebook' | 'pinterest'
+export type SocialQueueStatus = 'queued' | 'processing' | 'posted' | 'failed'
+export type SocialPostStatus = 'success' | 'failed'
+
+export interface SocialQueueStats {
+  queued: number
+  processing: number
+  posted: number
+  failed: number
+}
+
+export interface SocialPlatformInfo {
+  platform: SocialPlatform
+  label: string
+  enabled: boolean
+  queue: SocialQueueStats
+}
+
+export interface SocialResolvedContent {
+  source_type: string
+  source_id: number
+  primary_text: string | null
+  secondary_text: string | null
+  canonical_path: string | null
+  title: string | null
+  subtitle: string | null
+  language: string | null
+}
+
+export interface SocialQueueItem {
+  id: number
+  quote_id: number
+  source_type: string
+  source_id: number
+  platform: SocialPlatform
+  status: SocialQueueStatus
+  position: number
+  scheduled_for: string | null
+  created_at: string | null
+  updated_at: string | null
+  published_post_url: string | null
+  published_external_post_id: string | null
+  published_posted_at: string | null
+  error_message: string | null
+  quote_posts_count: number
+  quote_text: string | null
+  quote_language: string | null
+  author_name: string | null
+  reference_name: string | null
+  resolved_content: SocialResolvedContent | null
+}
+
+export interface SocialPost {
+  id: number
+  quote_id: number
+  source_type: string
+  source_id: number
+  queue_id: number | null
+  platform: SocialPlatform
+  status: SocialPostStatus
+  post_text: string | null
+  post_url: string | null
+  external_post_id: string | null
+  error_message: string | null
+  posted_at: string | null
+  created_at: string | null
+}
+
+export interface QueuedSocialItem {
+  id: number
+  quote_id: number
+  source_type: string
+  source_id: number
+  position: number
+  status?: SocialQueueStatus
+}
+
+export interface ListSocialQueueParams {
+  page?: number
+  limit?: number
+  platform?: SocialPlatform
+  status?: SocialQueueStatus | 'active'
+  search?: string
+}
+
+export interface ListSocialPostsParams {
+  page?: number
+  limit?: number
+  platform?: SocialPlatform
+  status?: SocialPostStatus
+}
+
+export interface AddToSocialQueueData {
+  quote_ids: number[]
+  platform?: SocialPlatform
+  scheduled_for?: string | null
+}
+
+export interface AddRandomToSocialQueueData {
+  platform?: SocialPlatform
+  count?: number
+  language?: string
+}
+
+export interface ClearSocialQueueData {
+  platform: SocialPlatform
+  confirm: boolean
+  scope?: 'all' | 'finished'
+}
+
+export interface ReorderSocialQueueData {
+  id: number
+  direction?: 'up' | 'down'
+  before_id?: number | null
+}
+
+export interface RunSocialAutopostData {
+  platform?: SocialPlatform
+}
+
+export interface SocialQueueListResult {
+  queue: SocialQueueItem[]
+  stats: SocialQueueStats
+}

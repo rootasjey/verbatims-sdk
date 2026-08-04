@@ -7,6 +7,7 @@ import { TagsResource } from './resources/tags'
 import { CollectionsResource } from './resources/collections'
 import { SearchResource } from './resources/search'
 import { ThemesResource } from './resources/themes'
+import { SocialResource } from './resources/social'
 import type { UploadedImage } from './types'
 import { apiResponseSchema } from './types'
 
@@ -66,6 +67,23 @@ export type {
   FeedParams,
   ThemeSuggestionsQuery,
   UploadedImage,
+  SocialPlatform,
+  SocialQueueStatus,
+  SocialPostStatus,
+  SocialPlatformInfo,
+  SocialQueueStats,
+  SocialResolvedContent,
+  SocialQueueItem,
+  SocialPost,
+  QueuedSocialItem,
+  SocialQueueListResult,
+  ListSocialQueueParams,
+  ListSocialPostsParams,
+  AddToSocialQueueData,
+  AddRandomToSocialQueueData,
+  ClearSocialQueueData,
+  ReorderSocialQueueData,
+  RunSocialAutopostData,
 } from './types'
 
 export class VerbatimsClient extends BaseClient {
@@ -76,6 +94,7 @@ export class VerbatimsClient extends BaseClient {
   collections: CollectionsResource
   search: SearchResource
   themes: ThemesResource
+  social: SocialResource
 
   constructor(apiKey: string, opts?: ConstructorParameters<typeof BaseClient>[1]) {
     super(apiKey, opts)
@@ -86,6 +105,7 @@ export class VerbatimsClient extends BaseClient {
     this.collections = new CollectionsResource(this)
     this.search = new SearchResource(this)
     this.themes = new ThemesResource(this)
+    this.social = new SocialResource(this)
   }
 
   async uploadImage(file: Blob) {
