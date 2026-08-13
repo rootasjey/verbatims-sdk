@@ -11,6 +11,10 @@
       with full TypeScript types for the best developer experience. The package also ships an optional
       <NuxtLink to="/docs#nuxt" class="text-primary hover:underline">Nuxt 4 module</NuxtLink> for auto-imported composables.
     </p>
+    <p class="text-muted leading-relaxed">
+      Questions or feedback?
+      <a href="mailto:support@verbatims.cc" class="text-primary hover:underline">Contact us at support@verbatims.cc</a>.
+    </p>
   </div>
 </template>
 
