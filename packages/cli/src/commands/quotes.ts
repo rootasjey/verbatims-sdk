@@ -10,6 +10,13 @@ function getFormat(program: Command): Format {
   return (program.opts().format ?? 'table') as Format
 }
 
+function warnLegacyQuoteOptions(options: Record<string, unknown>): void {
+  const fields = ['authorId', 'referenceId', 'sourceType', 'sourceUrl']
+  if (fields.some(field => options[field] !== undefined)) {
+    console.error(chalk.yellow('Warning: quote provenance options are deprecated; use the provenance API fields instead.'))
+  }
+}
+
 export function registerQuotesCommand(program: Command) {
   const quotes = program.command('quotes').description('Manage quotes')
 
@@ -66,13 +73,14 @@ export function registerQuotesCommand(program: Command) {
     .description('Create a quote')
     .option('--name <text>', 'Quote text')
     .option('--language <lang>', 'Language')
-    .option('--author-id <id>', 'Author ID')
-    .option('--reference-id <id>', 'Reference ID')
-    .option('--source-type <type>', 'Source type')
-    .option('--source-url <url>', 'Source URL')
+    .option('--author-id <id>', 'Author ID (deprecated)')
+    .option('--reference-id <id>', 'Reference ID (deprecated)')
+    .option('--source-type <type>', 'Source type (deprecated)')
+    .option('--source-url <url>', 'Source URL (deprecated)')
     .action(async (options: Record<string, string>) => {
       const client = await getClient()
       const format = getFormat(program)
+      warnLegacyQuoteOptions(options)
 
       const name = options.name ?? await text({ message: 'Quote text', validate: (v) => !v ? 'Required' : undefined })
       if (isCancel(name)) cancel('Cancelled')
@@ -105,13 +113,14 @@ export function registerQuotesCommand(program: Command) {
     .description('Update a quote')
     .option('--name <text>', 'Quote text')
     .option('--language <lang>', 'Language')
-    .option('--author-id <id>', 'Author ID')
-    .option('--reference-id <id>', 'Reference ID')
-    .option('--source-type <type>', 'Source type')
-    .option('--source-url <url>', 'Source URL')
+    .option('--author-id <id>', 'Author ID (deprecated)')
+    .option('--reference-id <id>', 'Reference ID (deprecated)')
+    .option('--source-type <type>', 'Source type (deprecated)')
+    .option('--source-url <url>', 'Source URL (deprecated)')
     .action(async (id: string, options: Record<string, string>) => {
       const client = await getClient()
       const format = getFormat(program)
+      warnLegacyQuoteOptions(options)
 
       const data_: Record<string, unknown> = {}
       if (options.name) { data_.name = options.name; data_.content = options.name }

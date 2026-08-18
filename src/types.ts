@@ -134,8 +134,11 @@ export interface QuoteWithRelations {
   status?: QuoteStatus
   stats?: QuoteStats
   featured?: boolean
+  /** @deprecated Use `attributions` instead. */
   author?: QuoteAuthor | null
+  /** @deprecated Use `attributions` instead. */
   reference?: QuoteReferenceInfo | null
+  /** @deprecated Use `sources` instead. */
   source?: { type: string; url?: string | null } | null
   attributions?: QuoteAttribution[]
   sources?: QuoteSource[]
@@ -198,7 +201,9 @@ export interface ListQuotesParams {
   page?: number
   limit?: number
   language?: string
+  /** @deprecated Use `provenance.author_id` instead. */
   author_id?: number
+  /** @deprecated Use `provenance.reference_id` instead. */
   reference_id?: number
   search?: string
   q?: string
@@ -235,7 +240,9 @@ export interface CreateQuoteData {
   author_id?: number
   reference_id?: number
   provenance?: PrimaryQuoteProvenanceData
+  /** @deprecated Use `provenance.source.source_type` instead. */
   source_type?: string | null
+  /** @deprecated Use `provenance.source.source_url` instead. */
   source_url?: string | null
   new_author?: {
     name: string
@@ -257,10 +264,14 @@ export interface UpdateQuoteData {
   content?: string
   name?: string
   language?: string
+  /** @deprecated Use `provenance.author_id` instead. */
   author_id?: number | null
+  /** @deprecated Use `provenance.reference_id` instead. */
   reference_id?: number | null
   provenance?: Partial<PrimaryQuoteProvenanceData>
+  /** @deprecated Use `provenance.source.source_type` instead. */
   source_type?: string | null
+  /** @deprecated Use `provenance.source.source_url` instead. */
   source_url?: string | null
 }
 

@@ -32,6 +32,8 @@ verbatims quotes sources create 123 --source-type book --source-url https://exam
 # Create a quote with a source
 verbatims quotes create --source-type book --source-url https://example.com/edition
 
+The quote-level `--author-id`, `--reference-id`, `--source-type`, and `--source-url` options are deprecated compatibility options. New integrations should use the SDK `provenance` payload; the dedicated `quotes attributions` and `quotes sources` commands manage secondary provenance.
+
 # Browse interactively
 verbatims quotes browse
 

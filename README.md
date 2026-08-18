@@ -58,6 +58,8 @@ for await (const quote of vb.quotes.paginate({ language: 'fr' })) {
 
 Quote details expose normalized provenance through `attributions` and `sources`. Attribution statuses are `unverified`, `manually_verified`, `externally_verified`, or `disputed`. Moderator/admin API keys can manage provenance with `listAttributions`, `createAttribution`, `updateAttribution`, `deleteAttribution`, and the corresponding source methods.
 
+The legacy quote fields (`author_id`, `reference_id`, `source_type`, and `source_url`) remain supported for compatibility but are deprecated. Use `provenance` for new code.
+
 ## Social queue
 
 Manage the auto-post queue of quotes on social platforms (x, bluesky, instagram, threads, facebook, pinterest).
