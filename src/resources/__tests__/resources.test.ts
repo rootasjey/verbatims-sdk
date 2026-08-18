@@ -124,6 +124,20 @@ describe('QuotesResource', () => {
       expect(JSON.parse(fetchFn.mock.calls[0][1].body).source_type).toBe('book')
       expect(fetchFn.mock.calls[1][1].method).toBe('DELETE')
     })
+
+    it('updates and deletes an attribution', async () => {
+      fetchFn
+        .mockResolvedValueOnce(mockResponse({ success: true, data: { id: 7, quote_id: 42 } }))
+        .mockResolvedValueOnce(mockResponse({ success: true, data: { id: 7, quote_id: 42 } }))
+
+      await quotes.updateAttribution(42, 7, { status: 'disputed' })
+      await quotes.deleteAttribution(42, 7)
+
+      expect(fetchFn.mock.calls[0][0]).toContain('/quotes/42/attributions/7')
+      expect(fetchFn.mock.calls[0][1].method).toBe('PUT')
+      expect(JSON.parse(fetchFn.mock.calls[0][1].body)).toEqual({ status: 'disputed' })
+      expect(fetchFn.mock.calls[1][1].method).toBe('DELETE')
+    })
   })
 
   describe('create', () => {
