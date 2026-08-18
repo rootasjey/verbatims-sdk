@@ -206,6 +206,123 @@ export function registerQuotesCommand(program: Command) {
       )
     })
 
+  quotes
+    .command('attributions <action> <quoteId> [attributionId]')
+    .description('Manage quote attributions (moderator/admin API key required)')
+    .option('--author-id <id>', 'Author ID')
+    .option('--reference-id <id>', 'Reference ID')
+    .option('--status <status>', 'Verification status')
+    .option('--notes <text>', 'Internal notes')
+    .option('--primary', 'Set as primary attribution')
+    .option('--yes', 'Skip confirmation')
+    .action(async (action: string, quoteId: string, attributionId: string | undefined, options: Record<string, any>) => {
+      const client = await getClient()
+      const format = getFormat(program)
+      const id = Number(quoteId)
+
+      if (action === 'list') {
+        const { data } = await withSpinner('Fetching attributions', () => client.quotes.listAttributions(id), format)
+        output(data, format)
+        return
+      }
+      if (action === 'create') {
+        const { data } = await withSpinner('Creating attribution', () => client.quotes.createAttribution(id, {
+          author_id: options.authorId ? Number(options.authorId) : null,
+          reference_id: options.referenceId ? Number(options.referenceId) : null,
+          status: options.status,
+          notes: options.notes,
+          is_primary: options.primary,
+        }), format)
+        output(data, format)
+        return
+      }
+      if (!attributionId) throw new Error('Attribution ID is required')
+      const attribution = Number(attributionId)
+      if (action === 'update') {
+        const data_: Record<string, unknown> = {}
+        if (options.authorId !== undefined) data_.author_id = Number(options.authorId)
+        if (options.referenceId !== undefined) data_.reference_id = Number(options.referenceId)
+        if (options.status !== undefined) data_.status = options.status
+        if (options.notes !== undefined) data_.notes = options.notes
+        if (options.primary !== undefined) data_.is_primary = options.primary
+        const { data } = await withSpinner('Updating attribution', () => client.quotes.updateAttribution(id, attribution, data_), format)
+        output(data, format)
+        return
+      }
+      if (action === 'delete') {
+        if (!options.yes) {
+          const confirmed = await confirm({ message: `Delete attribution #${attribution} from quote #${id}?` })
+          if (isCancel(confirmed) || !confirmed) cancel('Cancelled')
+        }
+        await withSpinner('Deleting attribution', () => client.quotes.deleteAttribution(id, attribution), format)
+        console.log(chalk.green(' Attribution deleted'))
+        return
+      }
+      throw new Error('Action must be list, create, update, or delete')
+    })
+
+  quotes
+    .command('sources <action> <quoteId> [sourceId]')
+    .description('Manage quote sources (moderator/admin API key required)')
+    .option('--attribution-id <id>', 'Attribution ID')
+    .option('--source-type <type>', 'Source type')
+    .option('--source-url <url>', 'Source URL')
+    .option('--label <label>', 'Source label')
+    .option('--status <status>', 'Verification status')
+    .option('--notes <text>', 'Internal notes')
+    .option('--primary', 'Set as primary source')
+    .option('--yes', 'Skip confirmation')
+    .action(async (action: string, quoteId: string, sourceId: string | undefined, options: Record<string, any>) => {
+      const client = await getClient()
+      const format = getFormat(program)
+      const id = Number(quoteId)
+
+      if (action === 'list') {
+        const { data } = await withSpinner('Fetching sources', () => client.quotes.listSources(id), format)
+        output(data, format)
+        return
+      }
+      if (action === 'create') {
+        if (!options.sourceType) throw new Error('--source-type is required')
+        const { data } = await withSpinner('Creating source', () => client.quotes.createSource(id, {
+          attribution_id: options.attributionId ? Number(options.attributionId) : null,
+          source_type: options.sourceType,
+          source_url: options.sourceUrl,
+          label: options.label,
+          verification_status: options.status,
+          notes: options.notes,
+          is_primary: options.primary,
+        }), format)
+        output(data, format)
+        return
+      }
+      if (!sourceId) throw new Error('Source ID is required')
+      const source = Number(sourceId)
+      if (action === 'update') {
+        const data_: Record<string, unknown> = {}
+        if (options.attributionId !== undefined) data_.attribution_id = Number(options.attributionId)
+        if (options.sourceType !== undefined) data_.source_type = options.sourceType
+        if (options.sourceUrl !== undefined) data_.source_url = options.sourceUrl
+        if (options.label !== undefined) data_.label = options.label
+        if (options.status !== undefined) data_.verification_status = options.status
+        if (options.notes !== undefined) data_.notes = options.notes
+        if (options.primary !== undefined) data_.is_primary = options.primary
+        const { data } = await withSpinner('Updating source', () => client.quotes.updateSource(id, source, data_), format)
+        output(data, format)
+        return
+      }
+      if (action === 'delete') {
+        if (!options.yes) {
+          const confirmed = await confirm({ message: `Delete source #${source} from quote #${id}?` })
+          if (isCancel(confirmed) || !confirmed) cancel('Cancelled')
+        }
+        await withSpinner('Deleting source', () => client.quotes.deleteSource(id, source), format)
+        console.log(chalk.green(' Source deleted'))
+        return
+      }
+      throw new Error('Action must be list, create, update, or delete')
+    })
+
   const tags = quotes.command('tags').description('Manage quote tags')
 
   tags

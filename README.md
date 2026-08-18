@@ -52,7 +52,7 @@ for await (const quote of vb.quotes.paginate({ language: 'fr' })) {
 | `vb.themes` | `list`, `get`, `create`, `update`, `delete`, `activate`, `setDefault`, `getActive`, `getFeed`, `paginate` |
 | `vb.social` | `listPlatforms`, `listQueue`, `getQueueItem`, `addToQueue`, `addRandomToQueue`, `removeQueueItem`, `clearQueue`, `reorderQueueItem`, `runNow`, `requeueQueueItem`, `listPosts`, `paginateQueue` |
 
-Quote details expose normalized provenance through `attributions` and `sources`. Attribution statuses are `unverified`, `manually_verified`, `externally_verified`, or `disputed`.
+Quote details expose normalized provenance through `attributions` and `sources`. Attribution statuses are `unverified`, `manually_verified`, `externally_verified`, or `disputed`. Moderator/admin API keys can manage provenance with `listAttributions`, `createAttribution`, `updateAttribution`, `deleteAttribution`, and the corresponding source methods.
 
 ## Social queue
 

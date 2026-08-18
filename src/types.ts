@@ -63,6 +63,8 @@ export interface QuoteAttribution {
   verified_by?: number | null
   verified_at?: string | null
   notes?: string | null
+  author_name?: string | null
+  reference_name?: string | null
   author?: { id: number; name: string }
   reference?: { id: number; name: string }
 }
@@ -80,6 +82,28 @@ export interface QuoteSource {
   notes?: string | null
   is_primary: boolean
 }
+
+export interface CreateQuoteAttributionData {
+  author_id?: number | null
+  reference_id?: number | null
+  is_primary?: boolean
+  status?: ProvenanceStatus
+  notes?: string | null
+}
+
+export type UpdateQuoteAttributionData = Partial<CreateQuoteAttributionData>
+
+export interface CreateQuoteSourceData {
+  attribution_id?: number | null
+  source_type: string
+  source_url?: string | null
+  label?: string | null
+  verification_status?: ProvenanceStatus
+  notes?: string | null
+  is_primary?: boolean
+}
+
+export type UpdateQuoteSourceData = Partial<CreateQuoteSourceData>
 
 export type QuoteStatus = 'draft' | 'pending' | 'approved' | 'rejected'
 

@@ -91,6 +91,41 @@ describe('QuotesResource', () => {
     })
   })
 
+  describe('provenance', () => {
+    it('lists attributions and sources', async () => {
+      fetchFn
+        .mockResolvedValueOnce(mockResponse({
+          success: true,
+          data: [{ id: 7, quote_id: 42, author_id: 1, reference_id: 2, is_primary: true, status: 'unverified', author_name: 'Author', reference_name: 'Book' }],
+        }))
+        .mockResolvedValueOnce(mockResponse({
+          success: true,
+          data: [{ id: 8, quote_id: 42, attribution_id: 7, source_type: 'book', source_url: null, verification_status: 'unverified', is_primary: true }],
+        }))
+
+      const attributions = await quotes.listAttributions(42)
+      const sources = await quotes.listSources(42)
+
+      expect(attributions.data?.[0]?.author_name).toBe('Author')
+      expect(sources.data?.[0]?.source_type).toBe('book')
+      expect(fetchFn.mock.calls[0][0]).toContain('/quotes/42/attributions')
+      expect(fetchFn.mock.calls[1][0]).toContain('/quotes/42/sources')
+    })
+
+    it('creates and deletes a source', async () => {
+      fetchFn
+        .mockResolvedValueOnce(mockResponse({ success: true, data: { id: 8, quote_id: 42 } }))
+        .mockResolvedValueOnce(mockResponse({ success: true, data: { id: 8, quote_id: 42 } }))
+
+      await quotes.createSource(42, { source_type: 'book', verification_status: 'unverified' })
+      await quotes.deleteSource(42, 8)
+
+      expect(fetchFn.mock.calls[0][1].method).toBe('POST')
+      expect(JSON.parse(fetchFn.mock.calls[0][1].body).source_type).toBe('book')
+      expect(fetchFn.mock.calls[1][1].method).toBe('DELETE')
+    })
+  })
+
   describe('create', () => {
     it('calls POST /quotes with body', async () => {
       fetchFn.mockResolvedValue(mockResponse({

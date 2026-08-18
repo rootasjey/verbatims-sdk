@@ -2,7 +2,7 @@ import { z } from 'zod/v4'
 import type { VerbatimsClient } from '../client'
 import { apiResponseSchema } from '../types'
 import { paginate } from '../pagination'
-import type { QuoteWithRelations, ListQuotesParams, CreateQuoteData, UpdateQuoteData, ModerateQuoteData, AddQuoteTagData } from '../types'
+import type { QuoteWithRelations, ListQuotesParams, CreateQuoteData, UpdateQuoteData, ModerateQuoteData, AddQuoteTagData, QuoteAttribution, QuoteSource, CreateQuoteAttributionData, UpdateQuoteAttributionData, CreateQuoteSourceData, UpdateQuoteSourceData } from '../types'
 
 const quoteStatsSchema = z.object({
   views: z.number(),
@@ -37,6 +37,8 @@ const quoteAttributionSchema = z.object({
   verified_by: z.number().nullable().optional(),
   verified_at: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
+  author_name: z.string().nullable().optional(),
+  reference_name: z.string().nullable().optional(),
   author: z.object({ id: z.number(), name: z.string() }).optional(),
   reference: z.object({ id: z.number(), name: z.string() }).optional(),
 })
@@ -94,6 +96,12 @@ const quoteTagListResponseSchema = apiResponseSchema(z.array(quoteTagSchema))
 const quoteTagAddResponseSchema = apiResponseSchema(z.object({
   id: z.number(),
   name: z.string(),
+}))
+
+const provenanceMutationResponseSchema = apiResponseSchema(z.object({
+  id: z.number().optional(),
+  quote_id: z.number(),
+  attribution_id: z.number().optional(),
 }))
 
 const quoteModerateResponseSchema = apiResponseSchema(z.object({
@@ -157,5 +165,37 @@ export class QuotesResource {
 
   async removeTag(id: number, tagId: number) {
     return this.client.delete(`/quotes/${id}/tags/${tagId}`, {}, apiResponseSchema(z.undefined()))
+  }
+
+  async listAttributions(id: number) {
+    return this.client.get(`/quotes/${id}/attributions`, {}, apiResponseSchema(z.array(quoteAttributionSchema))) as Promise<{ success: boolean; data?: QuoteAttribution[] }>
+  }
+
+  async createAttribution(id: number, data: CreateQuoteAttributionData) {
+    return this.client.post(`/quotes/${id}/attributions`, data, {}, provenanceMutationResponseSchema)
+  }
+
+  async updateAttribution(id: number, attributionId: number, data: UpdateQuoteAttributionData) {
+    return this.client.put(`/quotes/${id}/attributions/${attributionId}`, data, {}, provenanceMutationResponseSchema)
+  }
+
+  async deleteAttribution(id: number, attributionId: number) {
+    return this.client.delete(`/quotes/${id}/attributions/${attributionId}`, {}, provenanceMutationResponseSchema)
+  }
+
+  async listSources(id: number) {
+    return this.client.get(`/quotes/${id}/sources`, {}, apiResponseSchema(z.array(quoteSourceSchema))) as Promise<{ success: boolean; data?: QuoteSource[] }>
+  }
+
+  async createSource(id: number, data: CreateQuoteSourceData) {
+    return this.client.post(`/quotes/${id}/sources`, data, {}, provenanceMutationResponseSchema)
+  }
+
+  async updateSource(id: number, sourceId: number, data: UpdateQuoteSourceData) {
+    return this.client.put(`/quotes/${id}/sources/${sourceId}`, data, {}, provenanceMutationResponseSchema)
+  }
+
+  async deleteSource(id: number, sourceId: number) {
+    return this.client.delete(`/quotes/${id}/sources/${sourceId}`, {}, provenanceMutationResponseSchema)
   }
 }

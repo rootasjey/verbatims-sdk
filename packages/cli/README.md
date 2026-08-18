@@ -23,6 +23,12 @@ verbatims quotes list --language fr --limit 10
 verbatims quotes list --reference 42
 verbatims quotes get 123 --format json
 
+# Manage provenance (moderator/admin API key)
+verbatims quotes attributions list 123
+verbatims quotes attributions create 123 --author-id 1 --reference-id 2 --status manually_verified --primary
+verbatims quotes sources list 123
+verbatims quotes sources create 123 --source-type book --source-url https://example.com/edition --status externally_verified
+
 # Create a quote with a source
 verbatims quotes create --source-type book --source-url https://example.com/edition
 
