@@ -37,6 +37,7 @@ export type {
   UpdateQuoteAttributionData,
   CreateQuoteSourceData,
   UpdateQuoteSourceData,
+  PrimaryQuoteProvenanceData,
   Author,
   QuoteReference,
   PaginationMeta,

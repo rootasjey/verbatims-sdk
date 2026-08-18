@@ -84,7 +84,16 @@ export function registerQuotesCommand(program: Command) {
       const referenceId = options.referenceId ? Number(options.referenceId) : undefined
 
       const { data } = await withSpinner('Creating quote', () =>
-        client.quotes.create({ content: name as string, name: name as string, language: language as string, author_id: authorId, reference_id: referenceId, source_type: options.sourceType, source_url: options.sourceUrl }),
+        client.quotes.create({
+          content: name as string,
+          name: name as string,
+          language: language as string,
+          provenance: {
+            author_id: authorId,
+            reference_id: referenceId,
+            source: options.sourceType ? { source_type: options.sourceType, source_url: options.sourceUrl } : undefined,
+          },
+        }),
         format,
       )
       console.log(chalk.green(' Quote created'))
@@ -107,10 +116,14 @@ export function registerQuotesCommand(program: Command) {
       const data_: Record<string, unknown> = {}
       if (options.name) { data_.name = options.name; data_.content = options.name }
       if (options.language) data_.language = options.language
-      if (options.authorId !== undefined) data_.author_id = options.authorId === 'null' ? null : Number(options.authorId)
-      if (options.referenceId !== undefined) data_.reference_id = options.referenceId === 'null' ? null : Number(options.referenceId)
-      if (options.sourceType !== undefined) data_.source_type = options.sourceType
-      if (options.sourceUrl !== undefined) data_.source_url = options.sourceUrl
+      if (options.authorId !== undefined) data_.provenance = { ...(data_.provenance as object), author_id: options.authorId === 'null' ? null : Number(options.authorId) }
+      if (options.referenceId !== undefined) data_.provenance = { ...(data_.provenance as object), reference_id: options.referenceId === 'null' ? null : Number(options.referenceId) }
+      if (options.sourceType !== undefined || options.sourceUrl !== undefined) {
+        data_.provenance = {
+          ...(data_.provenance as object),
+          source: { source_type: options.sourceType ?? 'manual', source_url: options.sourceUrl },
+        }
+      }
 
       const { data } = await withSpinner('Updating quote', () => client.quotes.update(Number(id), data_ as any), format)
       console.log(chalk.green(' Quote updated'))

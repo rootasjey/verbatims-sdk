@@ -24,10 +24,14 @@ const quote = await vb.quotes.get(42)
 // Create a quote
 const created = await vb.quotes.create({
   name: 'Life is what happens when you\'re busy making other plans.',
-  author_id: 1,
+  provenance: {
+    author_id: 1,
+    source: {
+      source_type: 'book',
+      source_url: 'https://example.com/edition',
+    },
+  },
   language: 'en',
-  source_type: 'book',
-  source_url: 'https://example.com/edition',
 })
 
 // Quote provenance is available on quote details

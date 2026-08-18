@@ -105,6 +105,20 @@ export interface CreateQuoteSourceData {
 
 export type UpdateQuoteSourceData = Partial<CreateQuoteSourceData>
 
+export interface PrimaryQuoteProvenanceData {
+  author_id?: number | null
+  reference_id?: number | null
+  status?: ProvenanceStatus
+  notes?: string | null
+  source?: {
+    source_type: string
+    source_url?: string | null
+    label?: string | null
+    verification_status?: ProvenanceStatus
+    notes?: string | null
+  }
+}
+
 export type QuoteStatus = 'draft' | 'pending' | 'approved' | 'rejected'
 
 export interface QuoteStats {
@@ -220,6 +234,7 @@ export interface CreateQuoteData {
   language?: string
   author_id?: number
   reference_id?: number
+  provenance?: PrimaryQuoteProvenanceData
   source_type?: string | null
   source_url?: string | null
   new_author?: {
@@ -244,6 +259,7 @@ export interface UpdateQuoteData {
   language?: string
   author_id?: number | null
   reference_id?: number | null
+  provenance?: Partial<PrimaryQuoteProvenanceData>
   source_type?: string | null
   source_url?: string | null
 }
