@@ -70,6 +70,25 @@ describe('QuotesResource', () => {
       expect(url).toContain('/quotes/42')
       expect(result.data!.id).toBe(42)
     })
+
+    it('parses quote attributions and sources', async () => {
+      fetchFn.mockResolvedValue(mockResponse({
+        success: true,
+        data: {
+          id: 42,
+          content: 'Quote 42',
+          language: 'en',
+          attributions: [{ id: 7, quote_id: 42, author_id: 1, reference_id: 2, is_primary: true, status: 'manually_verified' }],
+          sources: [{ id: 8, quote_id: 42, attribution_id: 7, source_type: 'book', source_url: 'https://example.com', verification_status: 'externally_verified', is_primary: true }],
+          created_at: '2024-01-01',
+          updated_at: '2024-01-01',
+        },
+      }))
+
+      const result = await quotes.get(42)
+      expect(result.data?.attributions?.[0]?.status).toBe('manually_verified')
+      expect(result.data?.sources?.[0]?.source_type).toBe('book')
+    })
   })
 
   describe('create', () => {

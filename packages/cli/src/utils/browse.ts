@@ -32,7 +32,7 @@ export async function browse(fetchPage: PageFetcher, format: Format): Promise<vo
     }
 
     const allKeys = Object.keys(items[0] as Record<string, unknown>)
-    const keyOrder = ['id', 'content', 'name', 'language', 'type', 'author', 'reference', 'quotes_count']
+    const keyOrder = ['id', 'content', 'name', 'language', 'type', 'author', 'reference', 'source', 'attributions', 'sources', 'quotes_count']
     const columns = keyOrder
       .filter((k) => allKeys.includes(k))
       .map((k) => ({ key: k, label: k }))

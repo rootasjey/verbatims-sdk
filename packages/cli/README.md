@@ -19,6 +19,13 @@ verbatims config
 # List quotes
 verbatims quotes list --language fr --limit 10
 
+# Filter quotes by reference and inspect provenance
+verbatims quotes list --reference 42
+verbatims quotes get 123 --format json
+
+# Create a quote with a source
+verbatims quotes create --source-type book --source-url https://example.com/edition
+
 # Browse interactively
 verbatims quotes browse
 

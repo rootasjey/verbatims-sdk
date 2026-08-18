@@ -25,6 +25,36 @@ const quoteReferenceSchema = z.object({
   type: z.string().optional(),
 })
 
+const provenanceStatusSchema = z.enum(['unverified', 'manually_verified', 'externally_verified', 'disputed'])
+
+const quoteAttributionSchema = z.object({
+  id: z.number(),
+  quote_id: z.number(),
+  author_id: z.number().nullable(),
+  reference_id: z.number().nullable(),
+  is_primary: z.boolean(),
+  status: provenanceStatusSchema,
+  verified_by: z.number().nullable().optional(),
+  verified_at: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
+  author: z.object({ id: z.number(), name: z.string() }).optional(),
+  reference: z.object({ id: z.number(), name: z.string() }).optional(),
+})
+
+const quoteSourceSchema = z.object({
+  id: z.number(),
+  quote_id: z.number(),
+  attribution_id: z.number().nullable(),
+  source_type: z.string(),
+  source_url: z.string().nullable().optional(),
+  label: z.string().nullable().optional(),
+  verification_status: provenanceStatusSchema,
+  verified_by: z.number().nullable().optional(),
+  verified_at: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
+  is_primary: z.boolean(),
+})
+
 const quoteTagSchema = z.object({
   id: z.number(),
   name: z.string(),
@@ -40,6 +70,9 @@ const quoteSchema = z.object({
   featured: z.boolean().optional(),
   author: quoteAuthorSchema.nullable().optional(),
   reference: quoteReferenceSchema.nullable().optional(),
+  source: z.object({ type: z.string(), url: z.string().nullable().optional() }).nullable().optional(),
+  attributions: z.array(quoteAttributionSchema).optional(),
+  sources: z.array(quoteSourceSchema).optional(),
   tags: z.array(quoteTagSchema).optional(),
   user_id: z.number().optional(),
   moderator_id: z.number().nullable().optional(),

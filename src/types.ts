@@ -51,6 +51,36 @@ export interface QuoteReferenceInfo {
   type?: string
 }
 
+export type ProvenanceStatus = 'unverified' | 'manually_verified' | 'externally_verified' | 'disputed'
+
+export interface QuoteAttribution {
+  id: number
+  quote_id: number
+  author_id: number | null
+  reference_id: number | null
+  is_primary: boolean
+  status: ProvenanceStatus
+  verified_by?: number | null
+  verified_at?: string | null
+  notes?: string | null
+  author?: { id: number; name: string }
+  reference?: { id: number; name: string }
+}
+
+export interface QuoteSource {
+  id: number
+  quote_id: number
+  attribution_id: number | null
+  source_type: string
+  source_url?: string | null
+  label?: string | null
+  verification_status: ProvenanceStatus
+  verified_by?: number | null
+  verified_at?: string | null
+  notes?: string | null
+  is_primary: boolean
+}
+
 export type QuoteStatus = 'draft' | 'pending' | 'approved' | 'rejected'
 
 export interface QuoteStats {
@@ -68,6 +98,9 @@ export interface QuoteWithRelations {
   featured?: boolean
   author?: QuoteAuthor | null
   reference?: QuoteReferenceInfo | null
+  source?: { type: string; url?: string | null } | null
+  attributions?: QuoteAttribution[]
+  sources?: QuoteSource[]
   tags?: Array<{ id: number; name: string; color?: string | null }>
   user_id?: number
   moderator_id?: number | null
@@ -163,6 +196,8 @@ export interface CreateQuoteData {
   language?: string
   author_id?: number
   reference_id?: number
+  source_type?: string | null
+  source_url?: string | null
   new_author?: {
     name: string
     is_fictional?: boolean
@@ -185,6 +220,8 @@ export interface UpdateQuoteData {
   language?: string
   author_id?: number | null
   reference_id?: number | null
+  source_type?: string | null
+  source_url?: string | null
 }
 
 export interface ModerateQuoteData {

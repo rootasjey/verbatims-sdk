@@ -19,6 +19,7 @@ export function registerQuotesCommand(program: Command) {
     .option('--language <lang>', 'Filter by language')
     .option('--limit <n>', 'Number of results', '20')
     .option('--author <id>', 'Filter by author ID')
+    .option('--reference <id>', 'Filter by reference ID')
     .option('--tag <name>', 'Filter by tag')
     .option('--search <q>', 'Search in quote text')
     .option('--status <status>', 'Filter by status (draft|pending|approved|rejected)')
@@ -33,6 +34,7 @@ export function registerQuotesCommand(program: Command) {
           language: options.language,
           limit: Number(options.limit),
           author_id: options.author ? Number(options.author) : undefined,
+          reference_id: options.reference ? Number(options.reference) : undefined,
           tag: options.tag,
           search: options.search,
           q: options.search,
@@ -66,6 +68,8 @@ export function registerQuotesCommand(program: Command) {
     .option('--language <lang>', 'Language')
     .option('--author-id <id>', 'Author ID')
     .option('--reference-id <id>', 'Reference ID')
+    .option('--source-type <type>', 'Source type')
+    .option('--source-url <url>', 'Source URL')
     .action(async (options: Record<string, string>) => {
       const client = await getClient()
       const format = getFormat(program)
@@ -80,7 +84,7 @@ export function registerQuotesCommand(program: Command) {
       const referenceId = options.referenceId ? Number(options.referenceId) : undefined
 
       const { data } = await withSpinner('Creating quote', () =>
-        client.quotes.create({ content: name as string, name: name as string, language: language as string, author_id: authorId, reference_id: referenceId }),
+        client.quotes.create({ content: name as string, name: name as string, language: language as string, author_id: authorId, reference_id: referenceId, source_type: options.sourceType, source_url: options.sourceUrl }),
         format,
       )
       console.log(chalk.green(' Quote created'))
@@ -94,6 +98,8 @@ export function registerQuotesCommand(program: Command) {
     .option('--language <lang>', 'Language')
     .option('--author-id <id>', 'Author ID')
     .option('--reference-id <id>', 'Reference ID')
+    .option('--source-type <type>', 'Source type')
+    .option('--source-url <url>', 'Source URL')
     .action(async (id: string, options: Record<string, string>) => {
       const client = await getClient()
       const format = getFormat(program)
@@ -103,6 +109,8 @@ export function registerQuotesCommand(program: Command) {
       if (options.language) data_.language = options.language
       if (options.authorId !== undefined) data_.author_id = options.authorId === 'null' ? null : Number(options.authorId)
       if (options.referenceId !== undefined) data_.reference_id = options.referenceId === 'null' ? null : Number(options.referenceId)
+      if (options.sourceType !== undefined) data_.source_type = options.sourceType
+      if (options.sourceUrl !== undefined) data_.source_url = options.sourceUrl
 
       const { data } = await withSpinner('Updating quote', () => client.quotes.update(Number(id), data_ as any), format)
       console.log(chalk.green(' Quote updated'))
@@ -172,6 +180,7 @@ export function registerQuotesCommand(program: Command) {
     .description('Browse quotes interactively')
     .option('--language <lang>', 'Filter by language')
     .option('--author <id>', 'Filter by author ID')
+    .option('--reference <id>', 'Filter by reference ID')
     .option('--tag <name>', 'Filter by tag')
     .option('--search <q>', 'Search in quote text')
     .option('--status <status>', 'Filter by status (draft|pending|approved|rejected)')
@@ -185,6 +194,7 @@ export function registerQuotesCommand(program: Command) {
           page,
           language: options.language,
           author_id: options.author ? Number(options.author) : undefined,
+          reference_id: options.reference ? Number(options.reference) : undefined,
           tag: options.tag,
           search: options.search,
           q: options.search,

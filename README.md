@@ -26,7 +26,12 @@ const created = await vb.quotes.create({
   name: 'Life is what happens when you\'re busy making other plans.',
   author_id: 1,
   language: 'en',
+  source_type: 'book',
+  source_url: 'https://example.com/edition',
 })
+
+// Quote provenance is available on quote details
+console.log(quote.data?.attributions, quote.data?.sources)
 
 // Iterate through all pages
 for await (const quote of vb.quotes.paginate({ language: 'fr' })) {
@@ -46,6 +51,8 @@ for await (const quote of vb.quotes.paginate({ language: 'fr' })) {
 | `vb.search` | `query`, `paginate` |
 | `vb.themes` | `list`, `get`, `create`, `update`, `delete`, `activate`, `setDefault`, `getActive`, `getFeed`, `paginate` |
 | `vb.social` | `listPlatforms`, `listQueue`, `getQueueItem`, `addToQueue`, `addRandomToQueue`, `removeQueueItem`, `clearQueue`, `reorderQueueItem`, `runNow`, `requeueQueueItem`, `listPosts`, `paginateQueue` |
+
+Quote details expose normalized provenance through `attributions` and `sources`. Attribution statuses are `unverified`, `manually_verified`, `externally_verified`, or `disputed`.
 
 ## Social queue
 

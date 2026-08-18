@@ -27,6 +27,12 @@ export {
 export type {
   QuoteStatus,
   QuoteWithRelations,
+  QuoteAttribution,
+  QuoteSource,
+  ProvenanceStatus,
+  QuoteAuthor,
+  QuoteReferenceInfo,
+  QuoteStats,
   Author,
   QuoteReference,
   PaginationMeta,
