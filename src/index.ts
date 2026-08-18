@@ -30,8 +30,6 @@ export type {
   QuoteAttribution,
   QuoteSource,
   ProvenanceStatus,
-  QuoteAuthor,
-  QuoteReferenceInfo,
   QuoteStats,
   CreateQuoteAttributionData,
   UpdateQuoteAttributionData,

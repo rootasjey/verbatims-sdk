@@ -10,21 +10,6 @@ const quoteStatsSchema = z.object({
   shares: z.number().optional(),
 })
 
-const quoteAuthorSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  fictional: z.boolean().optional(),
-  image_url: z.string().nullable().optional(),
-  description: z.string().nullable().optional(),
-  job: z.string().nullable().optional(),
-})
-
-const quoteReferenceSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  type: z.string().optional(),
-})
-
 const provenanceStatusSchema = z.enum(['unverified', 'manually_verified', 'externally_verified', 'disputed'])
 
 const quoteAttributionSchema = z.object({
@@ -70,9 +55,6 @@ const quoteSchema = z.object({
   status: z.enum(['draft', 'pending', 'approved', 'rejected']).optional(),
   stats: quoteStatsSchema.optional(),
   featured: z.boolean().optional(),
-  author: quoteAuthorSchema.nullable().optional(),
-  reference: quoteReferenceSchema.nullable().optional(),
-  source: z.object({ type: z.string(), url: z.string().nullable().optional() }).nullable().optional(),
   attributions: z.array(quoteAttributionSchema).optional(),
   sources: z.array(quoteSourceSchema).optional(),
   tags: z.array(quoteTagSchema).optional(),

@@ -2,6 +2,8 @@
 
 TypeScript SDK for the [Verbatims](https://verbatims.cc) quotes API.
 
+Version 2 uses normalized quote provenance. The legacy quote-level author, reference, and source fields are no longer part of the SDK contract.
+
 ## Install
 
 ```bash
@@ -58,7 +60,7 @@ for await (const quote of vb.quotes.paginate({ language: 'fr' })) {
 
 Quote details expose normalized provenance through `attributions` and `sources`. Attribution statuses are `unverified`, `manually_verified`, `externally_verified`, or `disputed`. Moderator/admin API keys can manage provenance with `listAttributions`, `createAttribution`, `updateAttribution`, `deleteAttribution`, and the corresponding source methods.
 
-The legacy quote fields (`author_id`, `reference_id`, `source_type`, and `source_url`) remain supported for compatibility but are deprecated. Use `provenance` for new code.
+Quote creation and updates use `provenance` for author, reference, and source data.
 
 ## Social queue
 

@@ -36,21 +36,6 @@ export interface ApiResponse<T = unknown> {
 
 // --- API entity types ---
 
-export interface QuoteAuthor {
-  id: number
-  name: string
-  fictional?: boolean
-  image_url?: string | null
-  description?: string | null
-  job?: string | null
-}
-
-export interface QuoteReferenceInfo {
-  id: number
-  name: string
-  type?: string
-}
-
 export type ProvenanceStatus = 'unverified' | 'manually_verified' | 'externally_verified' | 'disputed'
 
 export interface QuoteAttribution {
@@ -134,12 +119,6 @@ export interface QuoteWithRelations {
   status?: QuoteStatus
   stats?: QuoteStats
   featured?: boolean
-  /** @deprecated Use `attributions` instead. */
-  author?: QuoteAuthor | null
-  /** @deprecated Use `attributions` instead. */
-  reference?: QuoteReferenceInfo | null
-  /** @deprecated Use `sources` instead. */
-  source?: { type: string; url?: string | null } | null
   attributions?: QuoteAttribution[]
   sources?: QuoteSource[]
   tags?: Array<{ id: number; name: string; color?: string | null }>
@@ -201,9 +180,7 @@ export interface ListQuotesParams {
   page?: number
   limit?: number
   language?: string
-  /** @deprecated Use `provenance.author_id` instead. */
   author_id?: number
-  /** @deprecated Use `provenance.reference_id` instead. */
   reference_id?: number
   search?: string
   q?: string
@@ -237,13 +214,7 @@ export interface CreateQuoteData {
   content?: string
   name?: string
   language?: string
-  author_id?: number
-  reference_id?: number
   provenance?: PrimaryQuoteProvenanceData
-  /** @deprecated Use `provenance.source.source_type` instead. */
-  source_type?: string | null
-  /** @deprecated Use `provenance.source.source_url` instead. */
-  source_url?: string | null
   new_author?: {
     name: string
     is_fictional?: boolean
@@ -264,15 +235,7 @@ export interface UpdateQuoteData {
   content?: string
   name?: string
   language?: string
-  /** @deprecated Use `provenance.author_id` instead. */
-  author_id?: number | null
-  /** @deprecated Use `provenance.reference_id` instead. */
-  reference_id?: number | null
   provenance?: Partial<PrimaryQuoteProvenanceData>
-  /** @deprecated Use `provenance.source.source_type` instead. */
-  source_type?: string | null
-  /** @deprecated Use `provenance.source.source_url` instead. */
-  source_url?: string | null
 }
 
 export interface ModerateQuoteData {

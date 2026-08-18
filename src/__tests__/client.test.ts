@@ -72,7 +72,7 @@ describe('VerbatimsClient', () => {
   describe('POST', () => {
     it('sends POST with JSON body and Content-Type', async () => {
       fetchFn.mockResolvedValue(mockResponse({ success: true }))
-      const body = { name: 'Test', author_id: 1 }
+      const body = { name: 'Test', provenance: { author_id: 1 } }
       await createClient().post('/quotes', body)
 
       const [url, opts] = fetchFn.mock.calls[0]

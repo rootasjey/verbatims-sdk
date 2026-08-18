@@ -10,13 +10,6 @@ function getFormat(program: Command): Format {
   return (program.opts().format ?? 'table') as Format
 }
 
-function warnLegacyQuoteOptions(options: Record<string, unknown>): void {
-  const fields = ['authorId', 'referenceId', 'sourceType', 'sourceUrl']
-  if (fields.some(field => options[field] !== undefined)) {
-    console.error(chalk.yellow('Warning: quote provenance options are deprecated; use the provenance API fields instead.'))
-  }
-}
-
 export function registerQuotesCommand(program: Command) {
   const quotes = program.command('quotes').description('Manage quotes')
 
@@ -73,14 +66,13 @@ export function registerQuotesCommand(program: Command) {
     .description('Create a quote')
     .option('--name <text>', 'Quote text')
     .option('--language <lang>', 'Language')
-    .option('--author-id <id>', 'Author ID (deprecated)')
-    .option('--reference-id <id>', 'Reference ID (deprecated)')
-    .option('--source-type <type>', 'Source type (deprecated)')
-    .option('--source-url <url>', 'Source URL (deprecated)')
+    .option('--provenance-author-id <id>', 'Primary provenance author ID')
+    .option('--provenance-reference-id <id>', 'Primary provenance reference ID')
+    .option('--provenance-source-type <type>', 'Primary provenance source type')
+    .option('--provenance-source-url <url>', 'Primary provenance source URL')
     .action(async (options: Record<string, string>) => {
       const client = await getClient()
       const format = getFormat(program)
-      warnLegacyQuoteOptions(options)
 
       const name = options.name ?? await text({ message: 'Quote text', validate: (v) => !v ? 'Required' : undefined })
       if (isCancel(name)) cancel('Cancelled')
@@ -88,8 +80,8 @@ export function registerQuotesCommand(program: Command) {
       const language = options.language ?? await text({ message: 'Language', initialValue: 'fr' })
       if (isCancel(language)) cancel('Cancelled')
 
-      const authorId = options.authorId ? Number(options.authorId) : undefined
-      const referenceId = options.referenceId ? Number(options.referenceId) : undefined
+      const authorId = options.provenanceAuthorId ? Number(options.provenanceAuthorId) : undefined
+      const referenceId = options.provenanceReferenceId ? Number(options.provenanceReferenceId) : undefined
 
       const { data } = await withSpinner('Creating quote', () =>
         client.quotes.create({
@@ -99,7 +91,7 @@ export function registerQuotesCommand(program: Command) {
           provenance: {
             author_id: authorId,
             reference_id: referenceId,
-            source: options.sourceType ? { source_type: options.sourceType, source_url: options.sourceUrl } : undefined,
+            source: options.provenanceSourceType ? { source_type: options.provenanceSourceType, source_url: options.provenanceSourceUrl } : undefined,
           },
         }),
         format,
@@ -113,24 +105,23 @@ export function registerQuotesCommand(program: Command) {
     .description('Update a quote')
     .option('--name <text>', 'Quote text')
     .option('--language <lang>', 'Language')
-    .option('--author-id <id>', 'Author ID (deprecated)')
-    .option('--reference-id <id>', 'Reference ID (deprecated)')
-    .option('--source-type <type>', 'Source type (deprecated)')
-    .option('--source-url <url>', 'Source URL (deprecated)')
+    .option('--provenance-author-id <id>', 'Primary provenance author ID')
+    .option('--provenance-reference-id <id>', 'Primary provenance reference ID')
+    .option('--provenance-source-type <type>', 'Primary provenance source type')
+    .option('--provenance-source-url <url>', 'Primary provenance source URL')
     .action(async (id: string, options: Record<string, string>) => {
       const client = await getClient()
       const format = getFormat(program)
-      warnLegacyQuoteOptions(options)
 
       const data_: Record<string, unknown> = {}
       if (options.name) { data_.name = options.name; data_.content = options.name }
       if (options.language) data_.language = options.language
-      if (options.authorId !== undefined) data_.provenance = { ...(data_.provenance as object), author_id: options.authorId === 'null' ? null : Number(options.authorId) }
-      if (options.referenceId !== undefined) data_.provenance = { ...(data_.provenance as object), reference_id: options.referenceId === 'null' ? null : Number(options.referenceId) }
-      if (options.sourceType !== undefined || options.sourceUrl !== undefined) {
+      if (options.provenanceAuthorId !== undefined) data_.provenance = { ...(data_.provenance as object), author_id: options.provenanceAuthorId === 'null' ? null : Number(options.provenanceAuthorId) }
+      if (options.provenanceReferenceId !== undefined) data_.provenance = { ...(data_.provenance as object), reference_id: options.provenanceReferenceId === 'null' ? null : Number(options.provenanceReferenceId) }
+      if (options.provenanceSourceType !== undefined || options.provenanceSourceUrl !== undefined) {
         data_.provenance = {
           ...(data_.provenance as object),
-          source: { source_type: options.sourceType ?? 'manual', source_url: options.sourceUrl },
+          source: { source_type: options.provenanceSourceType ?? 'manual', source_url: options.provenanceSourceUrl },
         }
       }
 
