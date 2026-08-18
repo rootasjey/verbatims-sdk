@@ -56,7 +56,7 @@ jobs:
         run: |
           SDK_LATEST=$(npm view @verbatims/sdk version)
           node -e "const fs=require('fs'); const p=JSON.parse(fs.readFileSync('./packages/cli/package.json','utf8')); p.dependencies['@verbatims/sdk']='^$SDK_LATEST'; fs.writeFileSync('./packages/cli/package.json', JSON.stringify(p, null, 2)+'\n')"
-      - run: bun install --frozen-lockfile
+      - run: bun install
       - name: Publish CLI
         run: |
           LATEST=$(npm view @verbatims/cli version 2>/dev/null || echo "0.0.0")
