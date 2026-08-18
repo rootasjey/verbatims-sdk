@@ -28,18 +28,19 @@ jobs:
       - run: bun run build
       - name: Publish SDK
         run: |
-          LATEST=$(npm view @verbatims/sdk version 2>/dev/null || echo "0.0.0")
-          node -e "const fs=require('fs'); const cp=require('child_process'); const p=JSON.parse(fs.readFileSync('./package.json','utf8')); const v='$LATEST'.split('.').map(Number); const major=cp.execSync('git log -1 --pretty=%B',{encoding:'utf8'}).includes('[major]'); if(major){v[0]++;v[1]=0;v[2]=0}else{v[2]++} p.version=v.join('.'); fs.writeFileSync('./package.json', JSON.stringify(p, null, 2)+'\n')"
-          npm publish --ignore-scripts
+           LATEST=$(npm view @verbatims/sdk version 2>/dev/null || echo "0.0.0")
+           CURRENT=$(node -p "require('./package.json').version")
+           if git log -1 --pretty=%B | grep -q '\[major\]'; then TARGET=$CURRENT; else TARGET=$(node -e "const v='$LATEST'.split('.').map(Number); v[2]++; console.log(v.join('.'))"); fi
+           node -e "const fs=require('fs'); const p=JSON.parse(fs.readFileSync('./package.json','utf8')); p.version='$TARGET'; fs.writeFileSync('./package.json', JSON.stringify(p, null, 2)+'\n')"
+           if npm view "@verbatims/sdk@$TARGET" version >/dev/null 2>&1; then echo "@verbatims/sdk@$TARGET already published"; else npm publish --ignore-scripts; fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Commit version bump
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add package.json
-          git commit -m "chore: bump SDK version to $(node -p "require('./package.json').version") [skip ci]"
-          git push
+           git add package.json
+           if git diff --cached --quiet; then echo "No SDK version bump to commit"; else git commit -m "chore: bump SDK version to $(node -p "require('./package.json').version") [skip ci]"; git push; fi
 
   release-cli:
     needs: release-sdk
@@ -60,15 +61,15 @@ jobs:
         run: |
           LATEST=$(npm view @verbatims/cli version 2>/dev/null || echo "0.0.0")
           SDK_LATEST=$(npm view @verbatims/sdk version)
-          node -e "const fs=require('fs'); const cp=require('child_process'); const p=JSON.parse(fs.readFileSync('./packages/cli/package.json','utf8')); const v='$LATEST'.split('.').map(Number); const major=cp.execSync('git log -1 --pretty=%B',{encoding:'utf8'}).includes('[major]'); if(major){v[0]++;v[1]=0;v[2]=0}else{v[2]++} p.version=v.join('.'); p.dependencies['@verbatims/sdk']='^$SDK_LATEST'; fs.writeFileSync('./packages/cli/package.json', JSON.stringify(p, null, 2)+'\n')"
-          npm publish -w packages/cli --ignore-scripts
+          CURRENT=$(node -p "require('./packages/cli/package.json').version")
+          if git log -1 --pretty=%B | grep -q '\[major\]'; then TARGET=$CURRENT; else TARGET=$(node -e "const v='$LATEST'.split('.').map(Number); v[2]++; console.log(v.join('.'))"); fi
+          node -e "const fs=require('fs'); const p=JSON.parse(fs.readFileSync('./packages/cli/package.json','utf8')); p.version='$TARGET'; p.dependencies['@verbatims/sdk']='^$SDK_LATEST'; fs.writeFileSync('./packages/cli/package.json', JSON.stringify(p, null, 2)+'\n')"
+          if npm view "@verbatims/cli@$TARGET" version >/dev/null 2>&1; then echo "@verbatims/cli@$TARGET already published"; else npm publish -w packages/cli --ignore-scripts; fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Commit version bump
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add packages/cli/package.json
-          git commit -m "chore: bump CLI version to $(node -p "require('./packages/cli/package.json').version") [skip ci]"
-          git pull --rebase
-          git push
+           git add packages/cli/package.json
+           if git diff --cached --quiet; then echo "No CLI version bump to commit"; else git commit -m "chore: bump CLI version to $(node -p "require('./packages/cli/package.json').version") [skip ci]"; git pull --rebase; git push; fi
