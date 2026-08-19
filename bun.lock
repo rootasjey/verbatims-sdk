@@ -38,7 +38,7 @@
       },
       "dependencies": {
         "@clack/prompts": "^0.10.1",
-        "@verbatims/sdk": "^2.0.0",
+        "@verbatims/sdk": "^2.0.1",
         "chalk": "^5.4.1",
         "commander": "^13.1.0",
         "tsx": "^4.19.4",
@@ -602,7 +602,7 @@
 
     "@verbatims/cli": ["@verbatims/cli@workspace:packages/cli"],
 
-    "@verbatims/sdk": ["@verbatims/sdk@2.0.0", "", { "dependencies": { "zod": "^4.4.3" }, "peerDependencies": { "nuxt": "^4.0.0" }, "optionalPeers": ["nuxt"] }, "sha512-urrPu1QD5BNvN3SMJmDH16v9PbxggmJfFxg7CWYMBTqPwrS82tjdcirDwwYyFu4GXHNuEoLKpXr3L3wGXOHG9A=="],
+    "@verbatims/sdk": ["@verbatims/sdk@2.0.1", "", { "dependencies": { "zod": "^4.4.3" }, "peerDependencies": { "nuxt": "^4.0.0" }, "optionalPeers": ["nuxt"] }, "sha512-ok/MWC9KUAN69taV2uF4QAmPQHDVLUUAqhvjjFImYtrOHFwh031yY/+m5B9Rg2IfEhZ0FITFl/Lzyu9Rxsf7WA=="],
 
     "@vercel/nft": ["@vercel/nft@1.10.2", "", { "dependencies": { "@mapbox/node-pre-gyp": "^2.0.0", "@rollup/pluginutils": "^5.1.3", "acorn": "^8.6.0", "acorn-import-attributes": "^1.9.5", "async-sema": "^3.1.1", "bindings": "^1.4.0", "estree-walker": "2.0.2", "glob": "^13.0.0", "graceful-fs": "^4.2.9", "node-gyp-build": "^4.2.2", "picomatch": "^4.0.2", "resolve-from": "^5.0.0" }, "bin": { "nft": "out/cli.js" } }, "sha512-w+WyX5Ulmj4dtTZrxaulqrjaLZHSbnPzx75SJsTNYmotKsqn1JlLnDJa+lz5hn90HJofhl/2MAtw0mCrgM3qYw=="],
 
