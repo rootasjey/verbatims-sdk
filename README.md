@@ -23,16 +23,10 @@ const { data } = await vb.quotes.list({ language: 'fr', limit: 10 })
 // Get a single quote
 const quote = await vb.quotes.get(42)
 
-// Create a quote
+// Create a quote with its required primary attribution
 const created = await vb.quotes.create({
   name: 'Life is what happens when you\'re busy making other plans.',
-  provenance: {
-    author_id: 1,
-    source: {
-      source_type: 'book',
-      source_url: 'https://example.com/edition',
-    },
-  },
+  attributions: [{ author_id: 1, is_primary: true }],
   language: 'en',
 })
 
@@ -60,7 +54,7 @@ for await (const quote of vb.quotes.paginate({ language: 'fr' })) {
 
 Quote details expose normalized provenance through `attributions` and `sources`. Attribution statuses are `unverified`, `manually_verified`, `externally_verified`, or `disputed`. Moderator/admin API keys can manage provenance with `listAttributions`, `createAttribution`, `updateAttribution`, `deleteAttribution`, and the corresponding source methods.
 
-Quote creation and updates use `provenance` for author, reference, and source data.
+Quote creation and attribution replacement use `attributions`, which must contain exactly one primary attribution. Sources belong to an attribution and are created with `createSource(quoteId, { attribution_id, ... })`. The former `provenance` payload remains temporarily available but is deprecated.
 
 ## Social queue
 

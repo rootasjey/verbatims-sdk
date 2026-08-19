@@ -29,12 +29,12 @@ verbatims quotes get 123 --format json
 verbatims quotes attributions list 123
 verbatims quotes attributions create 123 --author-id 1 --reference-id 2 --status manually_verified --primary
 verbatims quotes sources list 123
-verbatims quotes sources create 123 --source-type book --source-url https://example.com/edition --status externally_verified
+verbatims quotes sources create 123 --attribution-id 7 --source-type book --source-url https://example.com/edition --status externally_verified
 
 # Create a quote with a source
-verbatims quotes create --provenance-source-type book --provenance-source-url https://example.com/edition
+verbatims quotes create --name "Alea jacta est" --author-id 1 --source-type book --source-url https://example.com/edition
 
-Use the `--provenance-*` options for primary provenance. The dedicated `quotes attributions` and `quotes sources` commands manage secondary provenance.
+Use `--author-id` or `--reference-id` to create the required primary attribution. Sources always require `--attribution-id`; use the dedicated `quotes attributions` and `quotes sources` commands for additional or edited provenance.
 
 # Browse interactively
 verbatims quotes browse

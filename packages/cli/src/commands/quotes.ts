@@ -66,10 +66,10 @@ export function registerQuotesCommand(program: Command) {
     .description('Create a quote')
     .option('--name <text>', 'Quote text')
     .option('--language <lang>', 'Language')
-    .option('--provenance-author-id <id>', 'Primary provenance author ID')
-    .option('--provenance-reference-id <id>', 'Primary provenance reference ID')
-    .option('--provenance-source-type <type>', 'Primary provenance source type')
-    .option('--provenance-source-url <url>', 'Primary provenance source URL')
+    .option('--author-id <id>', 'Primary attribution author ID')
+    .option('--reference-id <id>', 'Primary attribution reference ID')
+    .option('--source-type <type>', 'Source type for the primary attribution')
+    .option('--source-url <url>', 'Source URL for the primary attribution')
     .action(async (options: Record<string, string>) => {
       const client = await getClient()
       const format = getFormat(program)
@@ -80,22 +80,31 @@ export function registerQuotesCommand(program: Command) {
       const language = options.language ?? await text({ message: 'Language', initialValue: 'fr' })
       if (isCancel(language)) cancel('Cancelled')
 
-      const authorId = options.provenanceAuthorId ? Number(options.provenanceAuthorId) : undefined
-      const referenceId = options.provenanceReferenceId ? Number(options.provenanceReferenceId) : undefined
+      const authorId = options.authorId ? Number(options.authorId) : undefined
+      const referenceId = options.referenceId ? Number(options.referenceId) : undefined
+      if (authorId === undefined && referenceId === undefined) {
+        throw new Error('A quote requires --author-id or --reference-id')
+      }
 
       const { data } = await withSpinner('Creating quote', () =>
         client.quotes.create({
           content: name as string,
           name: name as string,
           language: language as string,
-          provenance: {
-            author_id: authorId,
-            reference_id: referenceId,
-            source: options.provenanceSourceType ? { source_type: options.provenanceSourceType, source_url: options.provenanceSourceUrl } : undefined,
-          },
+          attributions: [{ author_id: authorId, reference_id: referenceId, is_primary: true }],
         }),
         format,
       )
+      if (options.sourceType && data) {
+        const primary = data.attributions?.find(attribution => attribution.is_primary)
+        if (!primary) throw new Error('The created quote has no primary attribution')
+        await withSpinner('Creating source', () => client.quotes.createSource(data.id, {
+          attribution_id: primary.id,
+          source_type: options.sourceType,
+          source_url: options.sourceUrl,
+          is_primary: true,
+        }), format)
+      }
       console.log(chalk.green(' Quote created'))
       output(data, format)
     })
@@ -105,10 +114,8 @@ export function registerQuotesCommand(program: Command) {
     .description('Update a quote')
     .option('--name <text>', 'Quote text')
     .option('--language <lang>', 'Language')
-    .option('--provenance-author-id <id>', 'Primary provenance author ID')
-    .option('--provenance-reference-id <id>', 'Primary provenance reference ID')
-    .option('--provenance-source-type <type>', 'Primary provenance source type')
-    .option('--provenance-source-url <url>', 'Primary provenance source URL')
+    .option('--author-id <id>', 'Primary attribution author ID')
+    .option('--reference-id <id>', 'Primary attribution reference ID')
     .action(async (id: string, options: Record<string, string>) => {
       const client = await getClient()
       const format = getFormat(program)
@@ -116,16 +123,19 @@ export function registerQuotesCommand(program: Command) {
       const data_: Record<string, unknown> = {}
       if (options.name) { data_.name = options.name; data_.content = options.name }
       if (options.language) data_.language = options.language
-      if (options.provenanceAuthorId !== undefined) data_.provenance = { ...(data_.provenance as object), author_id: options.provenanceAuthorId === 'null' ? null : Number(options.provenanceAuthorId) }
-      if (options.provenanceReferenceId !== undefined) data_.provenance = { ...(data_.provenance as object), reference_id: options.provenanceReferenceId === 'null' ? null : Number(options.provenanceReferenceId) }
-      if (options.provenanceSourceType !== undefined || options.provenanceSourceUrl !== undefined) {
-        data_.provenance = {
-          ...(data_.provenance as object),
-          source: { source_type: options.provenanceSourceType ?? 'manual', source_url: options.provenanceSourceUrl },
-        }
-      }
+      const authorId = options.authorId === undefined ? undefined : options.authorId === 'null' ? null : Number(options.authorId)
+      const referenceId = options.referenceId === undefined ? undefined : options.referenceId === 'null' ? null : Number(options.referenceId)
 
       const { data } = await withSpinner('Updating quote', () => client.quotes.update(Number(id), data_ as any), format)
+      if (authorId !== undefined || referenceId !== undefined) {
+        const attributions = await client.quotes.listAttributions(Number(id))
+        const primary = attributions.data?.find(attribution => attribution.is_primary)
+        if (!primary) throw new Error('The quote has no primary attribution')
+        await withSpinner('Updating primary attribution', () => client.quotes.updateAttribution(Number(id), primary.id, {
+          author_id: authorId === undefined ? primary.author_id : authorId,
+          reference_id: referenceId === undefined ? primary.reference_id : referenceId,
+        }), format)
+      }
       console.log(chalk.green(' Quote updated'))
       output(data, format)
     })
@@ -297,8 +307,9 @@ export function registerQuotesCommand(program: Command) {
       }
       if (action === 'create') {
         if (!options.sourceType) throw new Error('--source-type is required')
+        if (!options.attributionId) throw new Error('--attribution-id is required')
         const { data } = await withSpinner('Creating source', () => client.quotes.createSource(id, {
-          attribution_id: options.attributionId ? Number(options.attributionId) : null,
+          attribution_id: Number(options.attributionId),
           source_type: options.sourceType,
           source_url: options.sourceUrl,
           label: options.label,

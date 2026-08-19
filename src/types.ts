@@ -57,7 +57,7 @@ export interface QuoteAttribution {
 export interface QuoteSource {
   id: number
   quote_id: number
-  attribution_id: number | null
+  attribution_id: number
   source_type: string
   source_url?: string | null
   label?: string | null
@@ -78,8 +78,17 @@ export interface CreateQuoteAttributionData {
 
 export type UpdateQuoteAttributionData = Partial<CreateQuoteAttributionData>
 
+/** An attribution supplied while creating or replacing a quote's attributions. */
+export interface QuoteAttributionInput {
+  author_id?: number | null
+  reference_id?: number | null
+  is_primary: boolean
+  status?: ProvenanceStatus
+  notes?: string | null
+}
+
 export interface CreateQuoteSourceData {
-  attribution_id?: number | null
+  attribution_id: number
   source_type: string
   source_url?: string | null
   label?: string | null
@@ -214,6 +223,9 @@ export interface CreateQuoteData {
   content?: string
   name?: string
   language?: string
+  /** Complete attribution set. It must contain exactly one primary attribution. */
+  attributions?: QuoteAttributionInput[]
+  /** @deprecated Use `attributions`; sources are managed through `createSource`. */
   provenance?: PrimaryQuoteProvenanceData
   new_author?: {
     name: string
@@ -235,6 +247,9 @@ export interface UpdateQuoteData {
   content?: string
   name?: string
   language?: string
+  /** Complete replacement attribution set. It must contain exactly one primary attribution. */
+  attributions?: QuoteAttributionInput[]
+  /** @deprecated Use `attributions` or the dedicated attribution/source methods. */
   provenance?: Partial<PrimaryQuoteProvenanceData>
 }
 

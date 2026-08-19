@@ -117,10 +117,11 @@ describe('QuotesResource', () => {
         .mockResolvedValueOnce(mockResponse({ success: true, data: { id: 8, quote_id: 42 } }))
         .mockResolvedValueOnce(mockResponse({ success: true, data: { id: 8, quote_id: 42 } }))
 
-      await quotes.createSource(42, { source_type: 'book', verification_status: 'unverified' })
+      await quotes.createSource(42, { attribution_id: 7, source_type: 'book', verification_status: 'unverified' })
       await quotes.deleteSource(42, 8)
 
       expect(fetchFn.mock.calls[0][1].method).toBe('POST')
+      expect(JSON.parse(fetchFn.mock.calls[0][1].body)).toMatchObject({ attribution_id: 7 })
       expect(JSON.parse(fetchFn.mock.calls[0][1].body).source_type).toBe('book')
       expect(fetchFn.mock.calls[1][1].method).toBe('DELETE')
     })

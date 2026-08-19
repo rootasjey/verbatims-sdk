@@ -31,7 +31,7 @@ const quoteAttributionSchema = z.object({
 const quoteSourceSchema = z.object({
   id: z.number(),
   quote_id: z.number(),
-  attribution_id: z.number().nullable(),
+  attribution_id: z.number(),
   source_type: z.string(),
   source_url: z.string().nullable().optional(),
   label: z.string().nullable().optional(),

@@ -14,7 +14,7 @@ const quote = await vb.quotes.get(42)
 // Create a quote
 const created = await vb.quotes.create({
   name: 'Life is what happens when you\'re busy making other plans.',
-  provenance: { author_id: 1 },
+  attributions: [{ author_id: 1, is_primary: true }],
   language: 'en',
 })`,
 
@@ -53,7 +53,7 @@ for await (const result of vb.search.paginate({ q: 'life', type: 'quotes' })) {
   'quotes-create': `const quote = await vb.quotes.create({
   name: 'The only true wisdom is in knowing you know nothing.',
   language: 'en',
-  provenance: { author_id: 1 },
+  attributions: [{ author_id: 1, is_primary: true }],
   tags: [1, 2],
 })`,
 
