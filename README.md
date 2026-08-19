@@ -54,7 +54,7 @@ for await (const quote of vb.quotes.paginate({ language: 'fr' })) {
 
 Quote details expose normalized provenance through `attributions` and `sources`. Attribution statuses are `unverified`, `manually_verified`, `externally_verified`, or `disputed`. Moderator/admin API keys can manage provenance with `listAttributions`, `createAttribution`, `updateAttribution`, `deleteAttribution`, and the corresponding source methods.
 
-Quote creation and attribution replacement use `attributions`, which must contain exactly one primary attribution. Sources belong to an attribution and are created with `createSource(quoteId, { attribution_id, ... })`. The former `provenance` payload remains temporarily available but is deprecated.
+Quote creation and attribution replacement use `attributions`, which must contain exactly one primary attribution. Sources belong to an attribution and are created with `createSource(quoteId, { attribution_id, ... })`.
 
 ## Social queue
 

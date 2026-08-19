@@ -99,20 +99,6 @@ export interface CreateQuoteSourceData {
 
 export type UpdateQuoteSourceData = Partial<CreateQuoteSourceData>
 
-export interface PrimaryQuoteProvenanceData {
-  author_id?: number | null
-  reference_id?: number | null
-  status?: ProvenanceStatus
-  notes?: string | null
-  source?: {
-    source_type: string
-    source_url?: string | null
-    label?: string | null
-    verification_status?: ProvenanceStatus
-    notes?: string | null
-  }
-}
-
 export type QuoteStatus = 'draft' | 'pending' | 'approved' | 'rejected'
 
 export interface QuoteStats {
@@ -225,8 +211,6 @@ export interface CreateQuoteData {
   language?: string
   /** Complete attribution set. It must contain exactly one primary attribution. */
   attributions?: QuoteAttributionInput[]
-  /** @deprecated Use `attributions`; sources are managed through `createSource`. */
-  provenance?: PrimaryQuoteProvenanceData
   new_author?: {
     name: string
     is_fictional?: boolean
@@ -249,8 +233,6 @@ export interface UpdateQuoteData {
   language?: string
   /** Complete replacement attribution set. It must contain exactly one primary attribution. */
   attributions?: QuoteAttributionInput[]
-  /** @deprecated Use `attributions` or the dedicated attribution/source methods. */
-  provenance?: Partial<PrimaryQuoteProvenanceData>
 }
 
 export interface ModerateQuoteData {
