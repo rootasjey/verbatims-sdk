@@ -6,7 +6,7 @@ import { ReferencesResource } from './resources/references'
 import { TagsResource } from './resources/tags'
 import { CollectionsResource } from './resources/collections'
 import { SearchResource } from './resources/search'
-import { ThemesResource } from './resources/themes'
+import { ThemesResource, parseThemeManifest, themeManifestSchema } from './resources/themes'
 import { SocialResource } from './resources/social'
 import type { UploadedImage } from './types'
 import { apiResponseSchema } from './types'
@@ -74,6 +74,8 @@ export type {
   ActiveThemeParams,
   FeedParams,
   ThemeSuggestionsQuery,
+  ThemeManifest,
+  AppliedThemeManifest,
   UploadedImage,
   SocialPlatform,
   SocialQueueStatus,
@@ -93,6 +95,8 @@ export type {
   ReorderSocialQueueData,
   RunSocialAutopostData,
 } from './types'
+
+export { parseThemeManifest, themeManifestSchema }
 
 export class VerbatimsClient extends BaseClient {
   quotes: QuotesResource

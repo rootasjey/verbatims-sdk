@@ -1,9 +1,12 @@
 import type { Command } from 'commander'
+import { readFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
 import { text, isCancel, cancel, confirm } from '@clack/prompts'
 import chalk from 'chalk'
 import { getClient } from '../utils/client.js'
 import { output, type Format } from '../utils/format.js'
 import { withSpinner } from '../utils/spinner.js'
+import { parseThemeManifest } from '@verbatims/sdk'
 
 function getFormat(program: Command): Format {
   return (program.opts().format ?? 'table') as Format
@@ -45,6 +48,36 @@ export function registerThemesCommand(program: Command) {
       const format = getFormat(program)
       const { data } = await withSpinner('Fetching theme', () => client.themes.get(Number(id)), format)
       output(data, format)
+    })
+
+  themes
+    .command('apply <file>')
+    .description('Create or reconcile a theme from a versioned JSON manifest')
+    .option('--dry-run', 'Validate and show the planned operation without changing data')
+    .action(async (file: string, options: { dryRun?: boolean }) => {
+      const manifest = parseThemeManifest(JSON.parse(await readFile(resolve(file), 'utf8')))
+      const client = await getClient()
+      const format = getFormat(program)
+
+      if (options.dryRun) {
+        const { data } = await withSpinner('Checking existing themes', () =>
+          client.themes.list({ search: manifest.slug, limit: 100 }), format)
+        const existing = data?.find(theme => theme.slug === manifest.slug)
+        output({
+          operation: existing ? 'update' : 'create',
+          slug: manifest.slug,
+          name: manifest.name,
+          filters: manifest.filters?.length ?? 0,
+          translations: manifest.translations?.length ?? 'unchanged',
+          activation: 'unchanged',
+          defaultStatus: 'unchanged',
+        }, format)
+        return
+      }
+
+      const result = await withSpinner('Applying theme manifest', () => client.themes.apply(manifest), format)
+      console.log(chalk.green(` Theme ${result.operation}`))
+      output(result.data, format)
     })
 
   themes

@@ -95,12 +95,13 @@ export function registerQuotesCommand(program: Command) {
         }),
         format,
       )
-      if (options.sourceType && data) {
+      const sourceType = options.sourceType
+      if (sourceType && data) {
         const primary = data.attributions?.find(attribution => attribution.is_primary)
         if (!primary) throw new Error('The created quote has no primary attribution')
         await withSpinner('Creating source', () => client.quotes.createSource(data.id, {
           attribution_id: primary.id,
-          source_type: options.sourceType,
+          source_type: sourceType,
           source_url: options.sourceUrl,
           is_primary: true,
         }), format)

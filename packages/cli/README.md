@@ -42,6 +42,10 @@ verbatims quotes browse
 # Search
 verbatims search "love" --type quotes
 
+# Apply a reproducible theme manifest (safe to preview first)
+verbatims themes apply ./theme.json --dry-run
+verbatims themes apply ./theme.json
+
 # List social platforms with queue stats
 verbatims social platforms
 
@@ -57,6 +61,8 @@ verbatims social queue run-now --platform bluesky
 # See all commands
 verbatims --help
 ```
+
+Theme manifests use `schema_version: 1`, a stable `slug`, a `name`, and an explicit `filters` array. Optional translations (including homepage copy), language, priority, description, and config are validated before a write. Applying the same manifest reconciles filters by type/value, retaining IDs for unchanged filters; translations reconcile by language, and omitted homepage copy is preserved. Activation and default status are left unchanged. Keep manifests in version control to review theme changes before applying them. See [`examples/themes/quiet-courage.json`](examples/themes/quiet-courage.json).
 
 ### Social commands
 

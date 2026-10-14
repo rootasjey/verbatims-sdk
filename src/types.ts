@@ -438,6 +438,39 @@ export interface UpdateThemeData {
   translations?: Array<{ language: string; name: string; description?: string | null }>
 }
 
+/** A versioned, declarative snapshot used to create or reconcile a theme. */
+export interface ThemeManifest {
+  schema_version: 1
+  slug: string
+  name: string
+  description?: string | null
+  language?: string | null
+  priority?: number
+  config?: Record<string, unknown> | null
+  translations?: Array<{
+    language: string
+    name: string
+    description?: string | null
+    home_copy?: Record<string, unknown> | null
+  }>
+  filters: Array<{
+    type: 'keyword' | 'tag_name' | 'author_name' | 'reference_name' | 'author_id' | 'reference_id' | 'language'
+    value: string
+    match_mode?: 'any' | 'all'
+  }>
+}
+
+export interface AppliedThemeManifest {
+  operation: 'created' | 'updated'
+  data: {
+    id: number
+    slug: string
+    name: string
+    filters_count: number
+    translations_count: number
+  }
+}
+
 export interface AddQuoteTagData {
   tagId?: number
   name?: string

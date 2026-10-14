@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "slug": "quiet-courage",
+  "name": "Quiet Courage",
+  "description": "A carefully curated theme about courage expressed without bravado.",
+  "language": "en",
+  "priority": 20,
+  "translations": [
+    {
+      "language": "fr",
+      "name": "Courage tranquille",
+      "description": "Un thème autour du courage exprimé sans bravade."
+    }
+  ],
+  "filters": [
+    { "type": "tag_name", "value": "courage", "match_mode": "any" },
+    { "type": "keyword", "value": "quiet strength", "match_mode": "any" }
+  ]
+}
