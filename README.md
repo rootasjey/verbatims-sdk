@@ -57,7 +57,7 @@ console.log(result.operation, result.data.id)
 | `vb.authors` | `list`, `get`, `create`, `update`, `paginate` |
 | `vb.references` | `list`, `get`, `create`, `update`, `paginate` |
 | `vb.tags` | `list`, `paginate` |
-| `vb.collections` | `create`, `addQuote`, `removeQuote` |
+| `vb.collections` | `list`, `get`, `create`, `update`, `delete`, `addQuote`, `removeQuote`, `paginate` |
 | `vb.search` | `query`, `paginate` |
 | `vb.themes` | `list`, `get`, `create`, `apply`, `update`, `delete`, `activate`, `setDefault`, `getActive`, `getFeed`, `paginate` |
 | `vb.social` | `listPlatforms`, `listQueue`, `getQueueItem`, `addToQueue`, `addRandomToQueue`, `removeQueueItem`, `clearQueue`, `reorderQueueItem`, `runNow`, `requeueQueueItem`, `listPosts`, `paginateQueue` |

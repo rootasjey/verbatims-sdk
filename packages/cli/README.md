@@ -42,6 +42,15 @@ verbatims quotes browse
 # Search
 verbatims search "love" --type quotes
 
+# Manage collections
+verbatims collections list --limit 20
+verbatims collections get 12 --page 1 --limit 20
+verbatims collections create --name "Favorite quotes" --public
+verbatims collections update 12 --name "Reading notes" --private
+verbatims collections add 12 123
+verbatims collections remove 12 123
+verbatims collections delete 12 --yes
+
 # Apply a reproducible theme manifest (safe to preview first)
 verbatims themes apply ./theme.json --dry-run
 verbatims themes apply ./theme.json

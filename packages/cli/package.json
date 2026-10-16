@@ -3,6 +3,9 @@
   "version": "1.0.3",
   "description": "CLI for the Verbatims quotes API",
   "type": "module",
+  "engines": {
+    "node": "^22 || ^24"
+  },
   "bin": {
     "verbatims": "./bin/verbatims.js"
   },

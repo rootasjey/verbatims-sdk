@@ -435,6 +435,106 @@ describe('CollectionsResource', () => {
     expect(result.data?.quotes_count).toBe(0)
   })
 
+  it('lists collections with pagination metadata', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: [{ id: 1, name: 'My Collection', description: null, is_public: true, quotes_count: 2, created_at: '2024-01-01', updated_at: '2024-01-02' }],
+      pagination: { page: 2, limit: 10, total: 11, totalPages: 2, hasMore: false },
+    }))
+
+    const result = await collections.list({ page: 2, limit: 10 })
+    const [url] = fetchFn.mock.calls[0]
+    const parsed = new URL(url, 'http://localhost')
+    expect(parsed.pathname).toBe('/api/v1/collections')
+    expect(parsed.searchParams.get('page')).toBe('2')
+    expect(parsed.searchParams.get('limit')).toBe('10')
+    expect(result.data?.[0]?.quotes_count).toBe(2)
+    expect(result.pagination?.hasMore).toBe(false)
+  })
+
+  it('iterates all collection pages', async () => {
+    fetchFn
+      .mockResolvedValueOnce(mockResponse({
+        success: true,
+        data: [{ id: 1, name: 'First', created_at: null, updated_at: null }],
+        pagination: { page: 1, limit: 1, total: 2, totalPages: 2, hasMore: true },
+      }))
+      .mockResolvedValueOnce(mockResponse({
+        success: true,
+        data: [{ id: 2, name: 'Second', created_at: null, updated_at: null }],
+        pagination: { page: 2, limit: 1, total: 2, totalPages: 2, hasMore: false },
+      }))
+
+    const results = []
+    for await (const collection of collections.paginate({ limit: 1 })) results.push(collection)
+
+    expect(results.map(collection => collection.name)).toEqual(['First', 'Second'])
+    expect(fetchFn).toHaveBeenCalledTimes(2)
+  })
+
+  it('gets collection details and paginates its quotes', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: {
+        id: 1,
+        name: 'My Collection',
+        description: null,
+        is_public: true,
+        quotes_count: 1,
+        quotes: [{
+          id: 42,
+          content: 'A quote',
+          language: 'en',
+          stats: { views: 4, likes: 2, shares: 1 },
+          featured: false,
+          author: null,
+          reference: null,
+          attributions: [],
+          sources: [],
+          tags: [{ name: 'Courage', color: '#fff' }],
+          added_at: '2024-01-02',
+          created_at: '2024-01-01',
+          updated_at: '2024-01-01',
+        }],
+        created_at: '2024-01-01',
+        updated_at: '2024-01-02',
+        pagination: { page: 1, limit: 20, total: 1, totalPages: 1, hasMore: false },
+      },
+    }))
+
+    const result = await collections.get(1, { page: 1, limit: 20 })
+    const [url] = fetchFn.mock.calls[0]
+    expect(url).toContain('/collections/1?page=1&limit=20')
+    expect(result.data?.quotes[0]?.content).toBe('A quote')
+    expect(result.data?.quotes[0]?.tags[0]?.name).toBe('Courage')
+    expect(result.data?.pagination.total).toBe(1)
+  })
+
+  it('updates a collection with PUT /collections/:id', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: { id: 1, name: 'Updated', description: null, is_public: false, created_at: '2024-01-01', updated_at: '2024-01-03' },
+      message: 'Collection updated successfully',
+    }))
+
+    const result = await collections.update(1, { name: 'Updated', is_public: false })
+    const [url, opts] = fetchFn.mock.calls[0]
+    expect(url).toContain('/collections/1')
+    expect(opts.method).toBe('PUT')
+    expect(JSON.parse(opts.body)).toEqual({ name: 'Updated', is_public: false })
+    expect(result.data?.name).toBe('Updated')
+  })
+
+  it('deletes a collection with DELETE /collections/:id', async () => {
+    fetchFn.mockResolvedValue(mockResponse({ success: true, message: 'Collection deleted successfully' }))
+
+    const result = await collections.delete(1)
+    const [url, opts] = fetchFn.mock.calls[0]
+    expect(url).toContain('/collections/1')
+    expect(opts.method).toBe('DELETE')
+    expect(result.message).toBe('Collection deleted successfully')
+  })
+
   it('addQuote calls POST /collections/:id/quotes', async () => {
     fetchFn.mockResolvedValue(mockResponse({ success: true }))
     await collections.addQuote(1, 42)

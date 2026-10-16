@@ -300,6 +300,49 @@ export interface CreateCollectionData {
   is_public?: boolean
 }
 
+export interface Collection {
+  id: number
+  name: string
+  description?: string | null
+  is_public?: boolean
+  quotes_count?: number
+  created_at: string | null
+  updated_at: string | null
+}
+
+export interface CollectionQuote {
+  id: number
+  content: string
+  language: string
+  stats: QuoteStats
+  featured: boolean
+  author: { id: number; name: string } | null
+  reference: { id: number; name: string } | null
+  attributions: QuoteAttribution[]
+  sources: QuoteSource[]
+  tags: Array<{ name: string; color: string | null }>
+  added_at: string | null
+  created_at: string | null
+  updated_at: string | null
+}
+
+export interface CollectionDetail extends Collection {
+  quotes_count: number
+  quotes: CollectionQuote[]
+  pagination: PaginationMeta
+}
+
+export interface ListCollectionsParams {
+  page?: number
+  limit?: number
+}
+
+export interface UpdateCollectionData {
+  name?: string
+  description?: string | null
+  is_public?: boolean
+}
+
 // --- Theme types ---
 
 export interface Theme {
