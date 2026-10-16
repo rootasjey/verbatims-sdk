@@ -1,6 +1,6 @@
 {
   "name": "@verbatims/cli",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "CLI for the Verbatims quotes API",
   "type": "module",
   "engines": {
@@ -19,7 +19,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@verbatims/sdk": "^2.0.2",
+    "@verbatims/sdk": "^2.0.3",
     "@clack/prompts": "^0.10.1",
     "chalk": "^5.4.1",
     "commander": "^13.1.0",
