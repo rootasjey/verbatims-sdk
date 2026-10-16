@@ -6,7 +6,6 @@ import chalk from 'chalk'
 import { getClient } from '../utils/client.js'
 import { output, type Format } from '../utils/format.js'
 import { withSpinner } from '../utils/spinner.js'
-import { parseThemeManifest } from '@verbatims/sdk'
 
 function getFormat(program: Command): Format {
   return (program.opts().format ?? 'table') as Format
@@ -55,8 +54,16 @@ export function registerThemesCommand(program: Command) {
     .description('Create or reconcile a theme from a versioned JSON manifest')
     .option('--dry-run', 'Validate and show the planned operation without changing data')
     .action(async (file: string, options: { dryRun?: boolean }) => {
+      const sdk = await import('@verbatims/sdk')
+      if (!('parseThemeManifest' in sdk) || typeof sdk.parseThemeManifest !== 'function') {
+        throw new Error('Theme manifests require a newer @verbatims/sdk. Update the SDK and try again.')
+      }
+      const parseThemeManifest = sdk.parseThemeManifest
       const manifest = parseThemeManifest(JSON.parse(await readFile(resolve(file), 'utf8')))
       const client = await getClient()
+      if (typeof client.themes.apply !== 'function') {
+        throw new Error('Theme manifests require a newer @verbatims/sdk. Update the SDK and try again.')
+      }
       const format = getFormat(program)
 
       if (options.dryRun) {

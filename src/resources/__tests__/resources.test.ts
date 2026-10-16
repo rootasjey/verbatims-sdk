@@ -424,14 +424,15 @@ describe('CollectionsResource', () => {
   it('create calls POST /collections', async () => {
     fetchFn.mockResolvedValue(mockResponse({
       success: true,
-      data: { id: 1, name: 'My Collection', created_at: '2024-01-01', updated_at: '2024-01-01' },
+      data: { id: 1, name: 'My Collection', quotes_count: 0, created_at: '2024-01-01', updated_at: '2024-01-01' },
     }))
 
-    await collections.create({ name: 'My Collection', is_public: true })
+    const result = await collections.create({ name: 'My Collection', is_public: true })
     const [url, opts] = fetchFn.mock.calls[0]
     expect(url).toContain('/collections')
     expect(opts.method).toBe('POST')
     expect(JSON.parse(opts.body).name).toBe('My Collection')
+    expect(result.data?.quotes_count).toBe(0)
   })
 
   it('addQuote calls POST /collections/:id/quotes', async () => {

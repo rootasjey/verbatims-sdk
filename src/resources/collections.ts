@@ -8,7 +8,7 @@ const collectionSchema = z.object({
   name: z.string(),
   description: z.string().nullable().optional(),
   is_public: z.boolean().optional(),
-  quote_count: z.number().optional(),
+  quotes_count: z.number().optional(),
   created_at: z.string(),
   updated_at: z.string(),
 })
