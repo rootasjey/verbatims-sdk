@@ -11,6 +11,36 @@ function getFormat(program: Command): Format {
   return (program.opts().format ?? 'table') as Format
 }
 
+function getLifeDateFields(options: Record<string, unknown>): Record<string, unknown> {
+  const fields: Record<string, unknown> = {}
+  const dateParts = ['date', 'year', 'era', 'month', 'day', 'approximate'] as const
+
+  for (const period of ['birth', 'death'] as const) {
+    for (const part of dateParts) {
+      const optionName = part === 'approximate' ? `${period}Approximate` : `${period}${part.slice(0, 1).toUpperCase()}${part.slice(1)}`
+      const fieldName = part === 'approximate' ? `${period}_is_approximate` : `${period}_${part}`
+      const value = options[optionName]
+      if (value !== undefined) fields[fieldName] = part === 'year' || part === 'month' || part === 'day' ? Number(value) : value
+    }
+  }
+
+  return fields
+}
+
+function addLifeDateOptions(command: Command): void {
+  for (const period of ['birth', 'death'] as const) {
+    const label = period === 'birth' ? 'Birth' : 'Death'
+    command
+      .option(`--${period}-date <date>`, `${label} date`)
+      .option(`--${period}-year <year>`, `${label} year (supports BCE with --${period}-era bce)`)
+      .option(`--${period}-era <era>`, `${label} era: bce or ce`)
+      .option(`--${period}-month <month>`, `${label} month`)
+      .option(`--${period}-day <day>`, `${label} day`)
+      .option(`--${period}-approximate`, `Mark ${label.toLowerCase()} date as approximate`)
+      .option(`--no-${period}-approximate`, `Mark ${label.toLowerCase()} date as exact`)
+  }
+}
+
 export function registerAuthorsCommand(program: Command) {
   const authors = program.command('authors').description('Manage authors')
 
@@ -42,8 +72,8 @@ export function registerAuthorsCommand(program: Command) {
       output(data, format)
     })
 
-  authors
-    .command('create')
+  const createAuthor = authors.command('create')
+  createAuthor
     .description('Create an author')
     .option('--name <name>', 'Author name')
     .option('--job <job>', 'Job title')
@@ -51,15 +81,15 @@ export function registerAuthorsCommand(program: Command) {
     .option('--image-url <url>', 'Image URL')
     .option('--image-path <path>', 'Local image file path')
     .option('--fictional', 'Mark as fictional')
-    .action(async (options: Record<string, string>) => {
+    .action(async (options: Record<string, unknown>) => {
       const client = await getClient()
       const format = getFormat(program)
 
-      const name = options.name ?? await text({ message: 'Author name', validate: (v) => !v ? 'Required' : undefined })
+      const name = (options.name as string | undefined) ?? await text({ message: 'Author name', validate: (v) => !v ? 'Required' : undefined })
       if (isCancel(name)) cancel('Cancelled')
 
-      let image_url: string | null = options.imageUrl || null
-      const imagePath = options.imagePath
+      let image_url: string | null = typeof options.imageUrl === 'string' ? options.imageUrl : null
+      const imagePath = typeof options.imagePath === 'string' ? options.imagePath : undefined
       if (imagePath) {
         image_url = await withSpinner('Uploading image', () => uploadImageFromPath(client, imagePath), format)
       }
@@ -67,10 +97,11 @@ export function registerAuthorsCommand(program: Command) {
       const { data } = await withSpinner('Creating author', () =>
         client.authors.create({
           name: name as string,
-          job: options.job ?? null,
-          description: options.description ?? null,
+          job: (options.job as string | undefined) ?? null,
+          description: (options.description as string | undefined) ?? null,
           image_url,
-          fictional: options.fictional !== undefined ? true : undefined,
+          fictional: options.fictional === true ? true : undefined,
+          ...getLifeDateFields(options),
         }),
         format,
       )
@@ -78,8 +109,8 @@ export function registerAuthorsCommand(program: Command) {
       output(data, format)
     })
 
-  authors
-    .command('update <id>')
+  const updateAuthor = authors.command('update <id>')
+  updateAuthor
     .description('Update an author')
     .option('--name <name>', 'Author name')
     .option('--job <job>', 'Job title')
@@ -88,26 +119,29 @@ export function registerAuthorsCommand(program: Command) {
     .option('--image-path <path>', 'Local image file path')
     .option('--fictional', 'Mark as fictional')
     .option('--no-fictional', 'Mark as not fictional')
-    .action(async (id: string, options: Record<string, string>) => {
+    .action(async (id: string, options: Record<string, unknown>) => {
       const client = await getClient()
       const format = getFormat(program)
 
       const data_: Record<string, unknown> = {}
-      if (options.name) data_.name = options.name
+      if (typeof options.name === 'string') data_.name = options.name
       if (options.job !== undefined) data_.job = options.job || null
       if (options.description !== undefined) data_.description = options.description || null
       if (options.imageUrl !== undefined) data_.image_url = options.imageUrl || null
-      const updateImagePath = options.imagePath
+      const updateImagePath = typeof options.imagePath === 'string' ? options.imagePath : undefined
       if (updateImagePath !== undefined) {
         data_.image_url = await withSpinner('Uploading image', () => uploadImageFromPath(client, updateImagePath), format)
       }
-      if (options.fictional !== undefined) data_.is_fictional = true
-      if (options.noFictional !== undefined) data_.is_fictional = false
+      if (options.fictional !== undefined) data_.is_fictional = options.fictional === true
+      Object.assign(data_, getLifeDateFields(options))
 
       const { data } = await withSpinner('Updating author', () => client.authors.update(Number(id), data_ as any), format)
       console.log(chalk.green(' Author updated'))
       output(data, format)
     })
+
+  addLifeDateOptions(createAuthor)
+  addLifeDateOptions(updateAuthor)
 
   authors
     .command('delete <id>')

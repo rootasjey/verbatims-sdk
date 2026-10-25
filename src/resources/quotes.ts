@@ -35,6 +35,7 @@ const quoteSourceSchema = z.object({
   source_type: z.string(),
   source_url: z.string().nullable().optional(),
   label: z.string().nullable().optional(),
+  translator_name: z.string().nullable().optional(),
   verification_status: provenanceStatusSchema,
   verified_by: z.number().nullable().optional(),
   verified_at: z.string().nullable().optional(),

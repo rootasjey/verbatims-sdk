@@ -12,6 +12,18 @@ const authorStatsSchema = z.object({
 const authorDatesSchema = z.object({
   birth: z.string().nullable().optional(),
   death: z.string().nullable().optional(),
+  birth_year: z.number().nullable().optional(),
+  birth_era: z.enum(['bce', 'ce']).nullable().optional(),
+  birth_month: z.number().nullable().optional(),
+  birth_day: z.number().nullable().optional(),
+  birth_is_approximate: z.boolean().nullable().optional(),
+  birth_calendar: z.string().nullable().optional(),
+  death_year: z.number().nullable().optional(),
+  death_era: z.enum(['bce', 'ce']).nullable().optional(),
+  death_month: z.number().nullable().optional(),
+  death_day: z.number().nullable().optional(),
+  death_is_approximate: z.boolean().nullable().optional(),
+  death_calendar: z.string().nullable().optional(),
   birth_location: z.string().nullable().optional(),
   death_location: z.string().nullable().optional(),
 })

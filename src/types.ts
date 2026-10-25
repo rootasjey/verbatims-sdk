@@ -61,6 +61,7 @@ export interface QuoteSource {
   source_type: string
   source_url?: string | null
   label?: string | null
+  translator_name?: string | null
   verification_status: ProvenanceStatus
   verified_by?: number | null
   verified_at?: string | null
@@ -92,6 +93,7 @@ export interface CreateQuoteSourceData {
   source_type: string
   source_url?: string | null
   label?: string | null
+  translator_name?: string | null
   verification_status?: ProvenanceStatus
   notes?: string | null
   is_primary?: boolean
@@ -128,6 +130,18 @@ export interface QuoteWithRelations {
 export interface AuthorDates {
   birth?: string | null
   death?: string | null
+  birth_year?: number | null
+  birth_era?: 'bce' | 'ce' | null
+  birth_month?: number | null
+  birth_day?: number | null
+  birth_is_approximate?: boolean | null
+  birth_calendar?: string | null
+  death_year?: number | null
+  death_era?: 'bce' | 'ce' | null
+  death_month?: number | null
+  death_day?: number | null
+  death_is_approximate?: boolean | null
+  death_calendar?: string | null
   birth_location?: string | null
   death_location?: string | null
 }
@@ -247,8 +261,20 @@ export interface CreateAuthorData {
   job?: string | null
   description?: string | null
   birth_date?: string | null
+  birth_year?: number | null
+  birth_era?: 'bce' | 'ce'
+  birth_month?: number | null
+  birth_day?: number | null
+  birth_is_approximate?: boolean
+  birth_calendar?: 'gregorian-proleptic'
   birth_location?: string | null
   death_date?: string | null
+  death_year?: number | null
+  death_era?: 'bce' | 'ce'
+  death_month?: number | null
+  death_day?: number | null
+  death_is_approximate?: boolean
+  death_calendar?: 'gregorian-proleptic'
   death_location?: string | null
   image_url?: string | null
   socials?: Record<string, string> | null
@@ -261,8 +287,20 @@ export interface UpdateAuthorData {
   description?: string | null
   job?: string | null
   birth_date?: string | null
+  birth_year?: number | null
+  birth_era?: 'bce' | 'ce'
+  birth_month?: number | null
+  birth_day?: number | null
+  birth_is_approximate?: boolean
+  birth_calendar?: 'gregorian-proleptic'
   birth_location?: string | null
   death_date?: string | null
+  death_year?: number | null
+  death_era?: 'bce' | 'ce'
+  death_month?: number | null
+  death_day?: number | null
+  death_is_approximate?: boolean
+  death_calendar?: 'gregorian-proleptic'
   death_location?: string | null
   image_url?: string | null
   socials?: Record<string, string> | null

@@ -30,6 +30,11 @@ verbatims quotes attributions list 123
 verbatims quotes attributions create 123 --author-id 1 --reference-id 2 --status manually_verified --primary
 verbatims quotes sources list 123
 verbatims quotes sources create 123 --attribution-id 7 --source-type book --source-url https://example.com/edition --status externally_verified
+verbatims quotes sources update 123 7 --translator-name "Jane Doe"
+
+# Structured author dates (era can be bce or ce)
+verbatims authors create --name "Hypatia" --birth-year 350 --birth-era ce --birth-approximate
+verbatims authors update 12 --death-year 415 --death-era ce --death-approximate
 
 # Create a quote with a source
 verbatims quotes create --name "Alea jacta est" --author-id 1 --source-type book --source-url https://example.com/edition

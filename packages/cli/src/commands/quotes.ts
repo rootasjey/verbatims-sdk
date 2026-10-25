@@ -70,6 +70,7 @@ export function registerQuotesCommand(program: Command) {
     .option('--reference-id <id>', 'Primary attribution reference ID')
     .option('--source-type <type>', 'Source type for the primary attribution')
     .option('--source-url <url>', 'Source URL for the primary attribution')
+    .option('--translator-name <name>', 'Translator name for the primary source')
     .action(async (options: Record<string, string>) => {
       const client = await getClient()
       const format = getFormat(program)
@@ -103,6 +104,7 @@ export function registerQuotesCommand(program: Command) {
           attribution_id: primary.id,
           source_type: sourceType,
           source_url: options.sourceUrl,
+          translator_name: options.translatorName,
           is_primary: true,
         }), format)
       }
@@ -292,6 +294,7 @@ export function registerQuotesCommand(program: Command) {
     .option('--source-type <type>', 'Source type')
     .option('--source-url <url>', 'Source URL')
     .option('--label <label>', 'Source label')
+    .option('--translator-name <name>', 'Translator name')
     .option('--status <status>', 'Verification status')
     .option('--notes <text>', 'Internal notes')
     .option('--primary', 'Set as primary source')
@@ -314,6 +317,7 @@ export function registerQuotesCommand(program: Command) {
           source_type: options.sourceType,
           source_url: options.sourceUrl,
           label: options.label,
+          translator_name: options.translatorName,
           verification_status: options.status,
           notes: options.notes,
           is_primary: options.primary,
@@ -329,6 +333,7 @@ export function registerQuotesCommand(program: Command) {
         if (options.sourceType !== undefined) data_.source_type = options.sourceType
         if (options.sourceUrl !== undefined) data_.source_url = options.sourceUrl
         if (options.label !== undefined) data_.label = options.label
+        if (options.translatorName !== undefined) data_.translator_name = options.translatorName
         if (options.status !== undefined) data_.verification_status = options.status
         if (options.notes !== undefined) data_.notes = options.notes
         if (options.primary !== undefined) data_.is_primary = options.primary
