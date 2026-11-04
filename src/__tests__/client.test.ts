@@ -44,6 +44,7 @@ describe('VerbatimsClient', () => {
       expect(url).toContain('/api/v1/test')
       expect(opts.method).toBe('GET')
       expect(opts.headers['Authorization']).toBe('Bearer vbt_test_key')
+      expect(opts.headers['X-Client-Source']).toBe('sdk')
     })
 
     it('appends query parameters', async () => {
@@ -110,6 +111,16 @@ describe('VerbatimsClient', () => {
       const [, opts] = fetchFn.mock.calls[0]
       expect(opts.method).toBe('DELETE')
       expect(opts.body).toBeUndefined()
+    })
+  })
+
+  describe('uploads', () => {
+    it('marks SDK uploads with the SDK client source', async () => {
+      fetchFn.mockResolvedValue(mockResponse({ success: true }))
+      await createClient().uploadFile('/uploads', new Blob(['sample']))
+
+      const [, opts] = fetchFn.mock.calls[0]
+      expect(opts.headers['X-Client-Source']).toBe('sdk')
     })
   })
 

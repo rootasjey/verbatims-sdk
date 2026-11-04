@@ -82,6 +82,7 @@ export class VerbatimsClient {
             'Authorization': `Bearer ${this.apiKey}`,
             'Content-Type': body ? 'application/json' : undefined,
             'Accept': 'application/json',
+            'X-Client-Source': 'sdk',
           } as Record<string, string>,
           body,
           signal,
@@ -203,6 +204,7 @@ export class VerbatimsClient {
       headers: {
         'Authorization': `Bearer ${this.apiKey}`,
         'Accept': 'application/json',
+        'X-Client-Source': 'sdk',
       },
       body: formData,
       signal: AbortSignal.timeout(this.timeout),
