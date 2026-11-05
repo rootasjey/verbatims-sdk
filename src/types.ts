@@ -221,7 +221,7 @@ export interface SearchParams {
 
 export interface CreateQuoteData {
   content?: string
-  name?: string
+  name: string
   language?: string
   /** Complete attribution set. It must contain exactly one primary attribution. */
   attributions?: QuoteAttributionInput[]

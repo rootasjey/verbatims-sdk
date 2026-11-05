@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, expectTypeOf } from 'vitest'
 import { VerbatimsClient } from '../../client'
+import type { CreateQuoteData } from '../../types'
 import { QuotesResource } from '../quotes'
 import { AuthorsResource } from '../authors'
 import { ReferencesResource } from '../references'
@@ -142,6 +143,10 @@ describe('QuotesResource', () => {
   })
 
   describe('create', () => {
+    it('requires a quote name in the create payload type', () => {
+      expectTypeOf<Pick<CreateQuoteData, 'name'>>().toEqualTypeOf<{ name: string }>()
+    })
+
     it('calls POST /quotes with body', async () => {
       fetchFn.mockResolvedValue(mockResponse({
         success: true,
