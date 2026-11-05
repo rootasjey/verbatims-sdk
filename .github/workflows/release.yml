@@ -8,7 +8,6 @@ on:
       - 'packages/cli/**'
       - 'package.json'
       - 'tsconfig.json'
-      - '.github/workflows/release.yml'
   workflow_dispatch:
 
 permissions:
@@ -34,6 +33,25 @@ jobs:
            if git log -1 --pretty=%B | grep -q '\[major\]'; then TARGET=$CURRENT; else TARGET=$(node -e "const v='$LATEST'.split('.').map(Number); v[2]++; console.log(v.join('.'))"); fi
            node -e "const fs=require('fs'); const p=JSON.parse(fs.readFileSync('./package.json','utf8')); p.version='$TARGET'; fs.writeFileSync('./package.json', JSON.stringify(p, null, 2)+'\n')"
            if npm view "@verbatims/sdk@$TARGET" version >/dev/null 2>&1; then echo "@verbatims/sdk@$TARGET already published"; else npm publish --ignore-scripts; fi
+      - name: Create SDK GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="sdk-v$VERSION"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "GitHub release $TAG already exists"
+          else
+            cat > "$RUNNER_TEMP/release-notes.md" <<EOF
+          Published as [@verbatims/sdk@$VERSION](https://www.npmjs.com/package/@verbatims/sdk/v/$VERSION).
+
+          Source commit: $GITHUB_SHA.
+          EOF
+            gh release create "$TAG" \
+              --target "$GITHUB_SHA" \
+              --title "Verbatims SDK v$VERSION" \
+              --notes-file "$RUNNER_TEMP/release-notes.md"
+          fi
       - name: Commit version bump
         run: |
           git config user.name "github-actions[bot]"
@@ -64,6 +82,25 @@ jobs:
           if git log -1 --pretty=%B | grep -q '\[major\]'; then TARGET=$CURRENT; else TARGET=$(node -e "const v='$LATEST'.split('.').map(Number); v[2]++; console.log(v.join('.'))"); fi
           node -e "const fs=require('fs'); const p=JSON.parse(fs.readFileSync('./packages/cli/package.json','utf8')); p.version='$TARGET'; p.dependencies['@verbatims/sdk']='^$SDK_LATEST'; fs.writeFileSync('./packages/cli/package.json', JSON.stringify(p, null, 2)+'\n')"
           if npm view "@verbatims/cli@$TARGET" version >/dev/null 2>&1; then echo "@verbatims/cli@$TARGET already published"; else npm publish -w packages/cli --ignore-scripts; fi
+      - name: Create CLI GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(node -p "require('./packages/cli/package.json').version")
+          TAG="cli-v$VERSION"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "GitHub release $TAG already exists"
+          else
+            cat > "$RUNNER_TEMP/release-notes.md" <<EOF
+          Published as [@verbatims/cli@$VERSION](https://www.npmjs.com/package/@verbatims/cli/v/$VERSION).
+
+          Source commit: $GITHUB_SHA.
+          EOF
+            gh release create "$TAG" \
+              --target "$GITHUB_SHA" \
+              --title "Verbatims CLI v$VERSION" \
+              --notes-file "$RUNNER_TEMP/release-notes.md"
+          fi
       - name: Commit version bump
         run: |
           git config user.name "github-actions[bot]"
