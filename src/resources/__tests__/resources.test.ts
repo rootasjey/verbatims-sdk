@@ -80,7 +80,7 @@ describe('QuotesResource', () => {
           content: 'Quote 42',
           language: 'en',
           attributions: [{ id: 7, quote_id: 42, author_id: 1, reference_id: 2, is_primary: true, status: 'manually_verified' }],
-          sources: [{ id: 8, quote_id: 42, attribution_id: 7, source_type: 'book', source_url: 'https://example.com', verification_status: 'externally_verified', is_primary: true }],
+          sources: [{ id: 8, quote_id: 42, attribution_id: 7, occurrence_id: 9, source_type: 'book', source_url: 'https://example.com', verification_status: 'externally_verified', is_primary: true }],
           created_at: '2024-01-01',
           updated_at: '2024-01-01',
         },
@@ -89,6 +89,7 @@ describe('QuotesResource', () => {
       const result = await quotes.get(42)
       expect(result.data?.attributions?.[0]?.status).toBe('manually_verified')
       expect(result.data?.sources?.[0]?.source_type).toBe('book')
+      expect(result.data?.sources?.[0]?.occurrence_id).toBe(9)
     })
   })
 
@@ -101,7 +102,7 @@ describe('QuotesResource', () => {
         }))
         .mockResolvedValueOnce(mockResponse({
           success: true,
-          data: [{ id: 8, quote_id: 42, attribution_id: 7, source_type: 'book', source_url: null, verification_status: 'unverified', is_primary: true }],
+          data: [{ id: 8, quote_id: 42, attribution_id: 7, occurrence_id: 9, source_type: 'book', source_url: null, verification_status: 'unverified', is_primary: true }],
         }))
 
       const attributions = await quotes.listAttributions(42)
@@ -109,6 +110,7 @@ describe('QuotesResource', () => {
 
       expect(attributions.data?.[0]?.author_name).toBe('Author')
       expect(sources.data?.[0]?.source_type).toBe('book')
+      expect(sources.data?.[0]?.occurrence_id).toBe(9)
       expect(fetchFn.mock.calls[0][0]).toContain('/quotes/42/attributions')
       expect(fetchFn.mock.calls[1][0]).toContain('/quotes/42/sources')
     })
@@ -153,10 +155,10 @@ describe('QuotesResource', () => {
         data: { id: 1, content: 'New quote', language: 'en', stats: { views: 0, likes: 0, shares: 0 }, created_at: '2024-01-01', updated_at: '2024-01-01' },
       }))
 
-      await quotes.create({ name: 'New quote', language: 'en' })
+      await quotes.create({ name: 'New quote', language: 'en', attributions: [{ author_id: 1, is_primary: true }] })
       const [, opts] = fetchFn.mock.calls[0]
       expect(opts.method).toBe('POST')
-      expect(JSON.parse(opts.body)).toEqual({ name: 'New quote', language: 'en' })
+      expect(JSON.parse(opts.body)).toEqual({ name: 'New quote', language: 'en', attributions: [{ author_id: 1, is_primary: true }] })
     })
   })
 
@@ -264,6 +266,26 @@ describe('AuthorsResource', () => {
     authors = new AuthorsResource(mock.client)
   })
 
+  it('preserves image metadata, share stats, and updated_at from detail responses', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: {
+        id: 4, name: 'Author', created_at: '2024-01-01', updated_at: '2024-02-01',
+        image_url: '/blob/author.jpg', image_alt: 'Portrait', image_credit: 'Archive',
+        image_credit_status: 'source_known', image_source_url: 'https://example.com/image',
+        image_license: 'CC BY', image_license_status: 'documented',
+        stats: { views: 5, likes: 2, shares: 1 },
+      },
+    }))
+
+    const result = await authors.get(4)
+    expect(result.data).toMatchObject({
+      image_alt: 'Portrait', image_credit: 'Archive', image_credit_status: 'source_known',
+      image_source_url: 'https://example.com/image', image_license: 'CC BY',
+      image_license_status: 'documented', updated_at: '2024-02-01', stats: { shares: 1 },
+    })
+  })
+
   it('list calls GET /authors', async () => {
     fetchFn.mockResolvedValue(mockResponse({
       success: true,
@@ -322,6 +344,26 @@ describe('ReferencesResource', () => {
     const mock = createMockClient()
     fetchFn = mock.fetchFn
     references = new ReferencesResource(mock.client)
+  })
+
+  it('preserves image metadata, share stats, and updated_at from detail responses', async () => {
+    fetchFn.mockResolvedValue(mockResponse({
+      success: true,
+      data: {
+        id: 7, name: 'Book', type: 'book', created_at: '2024-01-01', updated_at: '2024-02-01',
+        image_url: '/blob/book.jpg', image_alt: 'Cover', image_credit: 'Publisher',
+        image_credit_status: 'creator_known', image_source_url: 'https://example.com/cover',
+        image_license: 'Public domain', image_license_status: 'documented',
+        stats: { views: 8, likes: 3, shares: 2 },
+      },
+    }))
+
+    const result = await references.get(7)
+    expect(result.data).toMatchObject({
+      image_alt: 'Cover', image_credit: 'Publisher', image_credit_status: 'creator_known',
+      image_source_url: 'https://example.com/cover', image_license: 'Public domain',
+      image_license_status: 'documented', updated_at: '2024-02-01', stats: { shares: 2 },
+    })
   })
 
   it('list calls GET /references', async () => {
@@ -568,20 +610,6 @@ describe('ThemesResource', () => {
     themes = new ThemesResource(mock.client)
   })
 
-  it('getActive calls GET /themes/active', async () => {
-    fetchFn.mockResolvedValue(mockResponse({
-      success: true,
-      data: { id: 1, slug: 'summer', name: 'Summer', description: null, language: 'en', isActive: true, isDefault: false, scheduledStart: null, scheduledEnd: null, priority: 0, config: null, createdAt: '2024-01-01', updatedAt: '2024-01-01', filters_count: 0 },
-    }))
-
-    const result = await themes.getActive({ language: 'en' })
-    const [url] = fetchFn.mock.calls[0]
-    expect(url).toContain('/themes/active')
-    const parsed = new URL(url, 'http://localhost')
-    expect(parsed.searchParams.get('language')).toBe('en')
-    expect(result.data?.slug).toBe('summer')
-  })
-
   it('getFeed calls GET /themes/:id/feed', async () => {
     fetchFn.mockResolvedValue(mockResponse({
       success: true,
@@ -730,31 +758,6 @@ describe('ThemesResource', () => {
     expect(JSON.parse(opts.body).name).toBe('Summer')
   })
 
-  it('suggestName calls POST /themes/suggest-name', async () => {
-    fetchFn.mockResolvedValue(mockResponse({
-      success: true,
-      data: { name: 'Summer Vibes', slug: 'summer-vibes', description: 'A summer theme' },
-    }))
-
-    await themes.suggestName('summer')
-    const [, opts] = fetchFn.mock.calls[0]
-    expect(opts.method).toBe('POST')
-    expect(JSON.parse(opts.body).name).toBe('summer')
-  })
-
-  it('suggestions calls GET /themes/suggestions', async () => {
-    fetchFn.mockResolvedValue(mockResponse({
-      success: true,
-      data: [{ type: 'tag', name: 'Summer', slug: 'summer', description: 'Summer theme', color_primary: '#FF0000', color_secondary: '#00FF00', filters: [{ type: 'keyword', value: 'summer', match_mode: 'any' }] }],
-    }))
-
-    await themes.suggestions({ ai: true, tags: 'summer,beach' })
-    const [url] = fetchFn.mock.calls[0]
-    expect(url).toContain('/themes/suggestions')
-    const parsed = new URL(url, 'http://localhost')
-    expect(parsed.searchParams.get('ai')).toBe('true')
-    expect(parsed.searchParams.get('tags')).toBe('summer,beach')
-  })
 })
 
 describe('SearchResource', () => {

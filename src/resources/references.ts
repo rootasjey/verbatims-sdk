@@ -7,6 +7,7 @@ import type { ListReferencesParams, CreateReferenceData, UpdateReferenceData } f
 const referenceStatsSchema = z.object({
   views: z.number(),
   likes: z.number(),
+  shares: z.number().optional(),
 })
 
 const referenceSchema = z.object({
@@ -18,9 +19,16 @@ const referenceSchema = z.object({
   release_date: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   image_url: z.string().nullable().optional(),
+  image_alt: z.string().nullable().optional(),
+  image_credit: z.string().nullable().optional(),
+  image_credit_status: z.enum(['creator_known', 'source_known', 'unknown']).nullable().optional(),
+  image_source_url: z.string().nullable().optional(),
+  image_license: z.string().nullable().optional(),
+  image_license_status: z.enum(['documented', 'undocumented', 'territory_limited']).nullable().optional(),
   stats: referenceStatsSchema.optional(),
   quotes_count: z.number().optional(),
   created_at: z.string().nullable(),
+  updated_at: z.string().nullable().optional(),
 })
 
 const referenceListResponseSchema = apiResponseSchema(z.array(referenceSchema))

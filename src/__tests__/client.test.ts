@@ -145,6 +145,12 @@ describe('VerbatimsClient', () => {
       await expect(createClient().get('/test')).rejects.toThrow(NotFoundError)
     })
 
+    it('preserves duplicate quote conflicts as a 409 VerbatimsError', async () => {
+      fetchFn.mockResolvedValue(mockResponse({ success: false, message: 'A similar quote already exists' }, 409))
+      await expect(createClient().post('/quotes', { name: 'Repeated quote' }))
+        .rejects.toMatchObject({ name: 'VerbatimsError', statusCode: 409, message: 'A similar quote already exists' })
+    })
+
     it('throws RateLimitError on 429 with headers', async () => {
       const now = Math.floor(Date.now() / 1000)
       fetchFn.mockResolvedValue(

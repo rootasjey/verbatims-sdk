@@ -59,7 +59,7 @@ console.log(result.operation, result.data.id)
 | `vb.tags` | `list`, `paginate` |
 | `vb.collections` | `list`, `get`, `create`, `update`, `delete`, `addQuote`, `removeQuote`, `paginate` |
 | `vb.search` | `query`, `paginate` |
-| `vb.themes` | `list`, `get`, `create`, `apply`, `update`, `delete`, `activate`, `setDefault`, `getActive`, `getFeed`, `paginate` |
+| `vb.themes` | `list`, `get`, `create`, `apply`, `update`, `delete`, `activate`, `setDefault`, `getFeed`, `paginate` |
 | `vb.social` | `listPlatforms`, `listQueue`, `getQueueItem`, `addToQueue`, `addRandomToQueue`, `removeQueueItem`, `clearQueue`, `reorderQueueItem`, `runNow`, `requeueQueueItem`, `listPosts`, `paginateQueue` |
 
 Quote details expose normalized provenance through `attributions` and `sources`. Attribution statuses are `unverified`, `manually_verified`, `externally_verified`, or `disputed`. Moderator/admin API keys can manage provenance with `listAttributions`, `createAttribution`, `updateAttribution`, `deleteAttribution`, and the corresponding source methods.

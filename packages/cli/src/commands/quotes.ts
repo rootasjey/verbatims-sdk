@@ -1,10 +1,40 @@
-import type { Command } from 'commander'
+import { Option, type Command } from 'commander'
 import { text, isCancel, cancel, confirm, select } from '@clack/prompts'
 import chalk from 'chalk'
 import { getClient } from '../utils/client.js'
 import { output, type Format } from '../utils/format.js'
 import { withSpinner } from '../utils/spinner.js'
 import { browse } from '../utils/browse.js'
+import type { VerbatimsClient } from '@verbatims/sdk'
+
+export async function createQuoteWithOptionalSource(
+  client: VerbatimsClient,
+  quote: { name: string; language: string; attributions: Array<{ author_id?: number; reference_id?: number; is_primary: boolean }> },
+  source?: { source_type: string; source_url?: string; translator_name?: string },
+) {
+  const created = await client.quotes.create(quote)
+  if (!source || !created.data) return created
+
+  const primary = created.data.attributions?.find(attribution => attribution.is_primary)
+  if (!primary) {
+    throw new Error(`Quote #${created.data.id} was created, but its primary attribution was missing; the source could not be created.`)
+  }
+
+  try {
+    await client.quotes.createSource(created.data.id, {
+      attribution_id: primary.id,
+      source_type: source.source_type,
+      source_url: source.source_url,
+      translator_name: source.translator_name,
+      is_primary: true,
+    })
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error)
+    throw new Error(`Quote #${created.data.id} was created, but its source could not be created: ${detail}`, { cause: error })
+  }
+
+  return created
+}
 
 function getFormat(program: Command): Format {
   return (program.opts().format ?? 'table') as Format
@@ -22,8 +52,7 @@ export function registerQuotesCommand(program: Command) {
     .option('--reference <id>', 'Filter by reference ID')
     .option('--tag <name>', 'Filter by tag')
     .option('--search <q>', 'Search in quote text')
-    .option('--status <status>', 'Filter by status (draft|pending|approved|rejected)')
-    .option('--sort-by <field>', 'Sort field')
+    .addOption(new Option('--sort-by <field>', 'Sort field').choices(['created_at', 'updated_at', 'views_count', 'likes_count', 'shares_count', 'name']))
     .option('--sort-order <order>', 'Sort order (asc|desc)')
     .action(async (options: Record<string, string>) => {
       const client = await getClient()
@@ -37,9 +66,7 @@ export function registerQuotesCommand(program: Command) {
           reference_id: options.reference ? Number(options.reference) : undefined,
           tag: options.tag,
           search: options.search,
-          q: options.search,
-          status: options.status as any,
-          sort_by: options.sortBy,
+          sort_by: options.sortBy as 'created_at' | 'updated_at' | 'views_count' | 'likes_count' | 'shares_count' | 'name' | undefined,
           sort_order: options.sortOrder as 'asc' | 'desc',
         }),
         format,
@@ -87,27 +114,19 @@ export function registerQuotesCommand(program: Command) {
         throw new Error('A quote requires --author-id or --reference-id')
       }
 
+      const sourceType = options.sourceType
       const { data } = await withSpinner('Creating quote', () =>
-        client.quotes.create({
-          content: name as string,
+        createQuoteWithOptionalSource(client, {
           name: name as string,
           language: language as string,
           attributions: [{ author_id: authorId, reference_id: referenceId, is_primary: true }],
-        }),
-        format,
-      )
-      const sourceType = options.sourceType
-      if (sourceType && data) {
-        const primary = data.attributions?.find(attribution => attribution.is_primary)
-        if (!primary) throw new Error('The created quote has no primary attribution')
-        await withSpinner('Creating source', () => client.quotes.createSource(data.id, {
-          attribution_id: primary.id,
+        }, sourceType ? {
           source_type: sourceType,
           source_url: options.sourceUrl,
           translator_name: options.translatorName,
-          is_primary: true,
-        }), format)
-      }
+        } : undefined),
+        format,
+      )
       console.log(chalk.green(' Quote created'))
       output(data, format)
     })
@@ -124,7 +143,7 @@ export function registerQuotesCommand(program: Command) {
       const format = getFormat(program)
 
       const data_: Record<string, unknown> = {}
-      if (options.name) { data_.name = options.name; data_.content = options.name }
+      if (options.name) data_.name = options.name
       if (options.language) data_.language = options.language
       const authorId = options.authorId === undefined ? undefined : options.authorId === 'null' ? null : Number(options.authorId)
       const referenceId = options.referenceId === undefined ? undefined : options.referenceId === 'null' ? null : Number(options.referenceId)
@@ -209,8 +228,7 @@ export function registerQuotesCommand(program: Command) {
     .option('--reference <id>', 'Filter by reference ID')
     .option('--tag <name>', 'Filter by tag')
     .option('--search <q>', 'Search in quote text')
-    .option('--status <status>', 'Filter by status (draft|pending|approved|rejected)')
-    .option('--sort-by <field>', 'Sort field')
+    .addOption(new Option('--sort-by <field>', 'Sort field').choices(['created_at', 'updated_at', 'views_count', 'likes_count', 'shares_count', 'name']))
     .option('--sort-order <order>', 'Sort order (asc|desc)')
     .action(async (options: Record<string, string>) => {
       const client = await getClient()
@@ -223,9 +241,7 @@ export function registerQuotesCommand(program: Command) {
           reference_id: options.reference ? Number(options.reference) : undefined,
           tag: options.tag,
           search: options.search,
-          q: options.search,
-          status: options.status as any,
-          sort_by: options.sortBy,
+          sort_by: options.sortBy as 'created_at' | 'updated_at' | 'views_count' | 'likes_count' | 'shares_count' | 'name' | undefined,
           sort_order: options.sortOrder as 'asc' | 'desc',
         }),
         format,
