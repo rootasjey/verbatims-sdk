@@ -58,6 +58,7 @@ export interface QuoteSource {
   id: number
   quote_id: number
   attribution_id: number
+  occurrence_id?: number | null
   source_type: string
   source_url?: string | null
   label?: string | null
@@ -90,6 +91,7 @@ export interface QuoteAttributionInput {
 
 export interface CreateQuoteSourceData {
   attribution_id: number
+  occurrence_id?: number | null
   source_type: string
   source_url?: string | null
   label?: string | null
@@ -149,6 +151,7 @@ export interface AuthorDates {
 export interface AuthorStats {
   views: number
   likes: number
+  shares?: number
 }
 
 export interface Author {
@@ -156,17 +159,25 @@ export interface Author {
   name: string
   fictional?: boolean
   image_url?: string | null
+  image_alt?: string | null
+  image_credit?: string | null
+  image_credit_status?: 'creator_known' | 'source_known' | 'unknown' | null
+  image_source_url?: string | null
+  image_license?: string | null
+  image_license_status?: 'documented' | 'undocumented' | 'territory_limited' | null
   job?: string | null
   description?: string | null
   dates?: AuthorDates
   stats?: AuthorStats
   quotes_count?: number
   created_at: string | null
+  updated_at?: string | null
 }
 
 export interface ReferenceStats {
   views: number
   likes: number
+  shares?: number
 }
 
 export interface QuoteReference {
@@ -178,9 +189,16 @@ export interface QuoteReference {
   release_date?: string | null
   description?: string | null
   image_url?: string | null
+  image_alt?: string | null
+  image_credit?: string | null
+  image_credit_status?: 'creator_known' | 'source_known' | 'unknown' | null
+  image_source_url?: string | null
+  image_license?: string | null
+  image_license_status?: 'documented' | 'undocumented' | 'territory_limited' | null
   stats?: ReferenceStats
   quotes_count?: number
   created_at: string | null
+  updated_at?: string | null
 }
 
 // --- Parameter types for SDK methods ---
@@ -192,10 +210,8 @@ export interface ListQuotesParams {
   author_id?: number
   reference_id?: number
   search?: string
-  q?: string
   tag?: string
-  status?: QuoteStatus
-  sort_by?: string
+  sort_by?: 'created_at' | 'updated_at' | 'views_count' | 'likes_count' | 'shares_count' | 'name'
   sort_order?: 'asc' | 'desc'
 }
 
@@ -220,11 +236,10 @@ export interface SearchParams {
 }
 
 export interface CreateQuoteData {
-  content?: string
-  name?: string
+  name: string
   language?: string
   /** Complete attribution set. It must contain exactly one primary attribution. */
-  attributions?: QuoteAttributionInput[]
+  attributions: QuoteAttributionInput[]
   new_author?: {
     name: string
     is_fictional?: boolean
@@ -242,11 +257,21 @@ export interface CreateQuoteData {
 }
 
 export interface UpdateQuoteData {
-  content?: string
   name?: string
   language?: string
+  source_type?: string | null
+  source_url?: string | null
   /** Complete replacement attribution set. It must contain exactly one primary attribution. */
   attributions?: QuoteAttributionInput[]
+  new_author?: {
+    name: string
+    is_fictional?: boolean
+  }
+  new_reference?: {
+    name: string
+    primary_type?: string
+    original_language?: string
+  }
 }
 
 export interface ModerateQuoteData {
@@ -256,7 +281,6 @@ export interface ModerateQuoteData {
 
 export interface CreateAuthorData {
   name: string
-  fictional?: boolean
   is_fictional?: boolean
   job?: string | null
   description?: string | null
@@ -277,12 +301,19 @@ export interface CreateAuthorData {
   death_calendar?: 'gregorian-proleptic'
   death_location?: string | null
   image_url?: string | null
+  image_alt?: string | null
+  image_credit?: string | null
+  image_credit_status?: 'creator_known' | 'source_known' | 'unknown' | null
+  image_source_url?: string | null
+  image_license?: string | null
+  image_license_status?: 'documented' | 'undocumented' | 'territory_limited' | null
+  image_date?: string | null
+  image_location?: string | null
   socials?: Record<string, string> | null
 }
 
 export interface UpdateAuthorData {
   name?: string
-  fictional?: boolean
   is_fictional?: boolean
   description?: string | null
   job?: string | null
@@ -303,32 +334,52 @@ export interface UpdateAuthorData {
   death_calendar?: 'gregorian-proleptic'
   death_location?: string | null
   image_url?: string | null
+  image_alt?: string | null
+  image_credit?: string | null
+  image_credit_status?: 'creator_known' | 'source_known' | 'unknown' | null
+  image_source_url?: string | null
+  image_license?: string | null
+  image_license_status?: 'documented' | 'undocumented' | 'territory_limited' | null
+  image_date?: string | null
+  image_location?: string | null
   socials?: Record<string, string> | null
 }
 
 export interface CreateReferenceData {
   name: string
-  type?: string
-  primary_type?: string
+  primary_type: string
   secondary_type?: string | null
   description?: string | null
   release_date?: string | null
-  language?: string
   original_language?: string
   image_url?: string | null
+  image_alt?: string | null
+  image_credit?: string | null
+  image_credit_status?: 'creator_known' | 'source_known' | 'unknown' | null
+  image_source_url?: string | null
+  image_license?: string | null
+  image_license_status?: 'documented' | 'undocumented' | 'territory_limited' | null
+  image_date?: string | null
+  image_location?: string | null
   urls?: Record<string, string> | null
 }
 
 export interface UpdateReferenceData {
   name?: string
-  type?: string
   primary_type?: string
   secondary_type?: string | null
   description?: string | null
   release_date?: string | null
-  language?: string
   original_language?: string
   image_url?: string | null
+  image_alt?: string | null
+  image_credit?: string | null
+  image_credit_status?: 'creator_known' | 'source_known' | 'unknown' | null
+  image_source_url?: string | null
+  image_license?: string | null
+  image_license_status?: 'documented' | 'undocumented' | 'territory_limited' | null
+  image_date?: string | null
+  image_location?: string | null
   urls?: Record<string, string> | null
 }
 
@@ -579,39 +630,12 @@ export interface FilterRecommendation {
   label: string
 }
 
-export interface ThemeNameSuggestion {
-  name: string
-  slug: string
-  description: string
-}
-
-export interface ThemeSuggestionItem {
-  type: 'tag' | 'author' | 'reference'
-  name: string
-  slug: string
-  description: string
-  color_primary: string
-  color_secondary: string
-  filters: Array<{ type: string; value: string; match_mode: 'any' }>
-}
-
-export interface ActiveThemeParams {
-  language?: string
-  theme?: string
-}
-
 export interface FeedParams {
   language?: string
 }
 
 export interface UploadedImage {
   url: string
-}
-
-export interface ThemeSuggestionsQuery {
-  ai?: boolean
-  tags?: string
-  language?: string
 }
 
 // --- Social queue / auto-post types ---

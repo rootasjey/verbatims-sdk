@@ -235,24 +235,6 @@ export function registerThemesCommand(program: Command) {
     })
 
   themes
-    .command('active')
-    .description('Get the currently active theme')
-    .option('--language <lang>', 'Language')
-    .action(async (options: Record<string, string>) => {
-      const client = await getClient()
-      const format = getFormat(program)
-      const { data } = await withSpinner('Fetching active theme', () =>
-        client.themes.getActive({ language: options.language }),
-        format,
-      )
-      if (!data) {
-        console.log(chalk.dim('No active theme'))
-        return
-      }
-      output(data, format)
-    })
-
-  themes
     .command('feed <id>')
     .description('Get the curated feed for a theme')
     .option('--language <lang>', 'Language')
@@ -311,26 +293,6 @@ export function registerThemesCommand(program: Command) {
     })
 
   themes
-    .command('suggestions')
-    .description('Generate theme suggestions')
-    .option('--ai', 'Use AI generation')
-    .option('--tags <tags>', 'Seed tags (comma-separated)')
-    .option('--language <lang>', 'Language')
-    .action(async (options: Record<string, string>) => {
-      const client = await getClient()
-      const format = getFormat(program)
-      const { data } = await withSpinner('Generating suggestions', () =>
-        client.themes.suggestions({
-          ai: options.ai ? true : undefined,
-          tags: options.tags,
-          language: options.language,
-        }),
-        format,
-      )
-      output(data, format)
-    })
-
-  themes
     .command('filter-suggestions <q>')
     .description('Search filter values')
     .requiredOption('--type <type>', 'Filter type (tag_name|author_name|reference_name|keyword|language)')
@@ -358,16 +320,4 @@ export function registerThemesCommand(program: Command) {
       output(data, format)
     })
 
-  themes
-    .command('suggest-name <name>')
-    .description('Generate an AI-powered theme name suggestion')
-    .action(async (name: string) => {
-      const client = await getClient()
-      const format = getFormat(program)
-      const { data } = await withSpinner('Generating name suggestion', () =>
-        client.themes.suggestName(name),
-        format,
-      )
-      output(data, format)
-    })
 }

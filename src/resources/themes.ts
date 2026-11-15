@@ -15,11 +15,7 @@ import type {
   FilterSuggestion,
   FilterRecommendationsData,
   FilterRecommendation,
-  ThemeNameSuggestion,
-  ThemeSuggestionItem,
-  ActiveThemeParams,
   FeedParams,
-  ThemeSuggestionsQuery,
   ThemeManifest,
   AppliedThemeManifest,
 } from '../types'
@@ -165,10 +161,6 @@ type ThemeItem = z.infer<typeof themeSchema>
 export class ThemesResource {
   constructor(private client: VerbatimsClient) {}
 
-  async getActive(params?: ActiveThemeParams) {
-    return this.client.get('/themes/active', { params: params as Record<string, unknown> }, apiResponseSchema(themeSchema.nullable()))
-  }
-
   async getFeed(id: number, params?: FeedParams) {
     return this.client.get(`/themes/${id}/feed`, { params: params as Record<string, unknown> }, apiResponseSchema(themeFeedSchema.nullable()))
   }
@@ -260,27 +252,4 @@ export class ThemesResource {
     }))))
   }
 
-  async suggestName(name: string) {
-    return this.client.post('/themes/suggest-name', { name }, {}, apiResponseSchema(z.object({
-      name: z.string(),
-      slug: z.string(),
-      description: z.string(),
-    })))
-  }
-
-  async suggestions(params?: ThemeSuggestionsQuery) {
-    return this.client.get('/themes/suggestions', { params: params as Record<string, unknown> }, apiResponseSchema(z.array(z.object({
-      type: z.enum(['tag', 'author', 'reference']),
-      name: z.string(),
-      slug: z.string(),
-      description: z.string(),
-      color_primary: z.string(),
-      color_secondary: z.string(),
-      filters: z.array(z.object({
-        type: z.string(),
-        value: z.string(),
-        match_mode: z.literal('any'),
-      })),
-    }))))
-  }
 }

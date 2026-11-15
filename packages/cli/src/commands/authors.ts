@@ -100,7 +100,7 @@ export function registerAuthorsCommand(program: Command) {
           job: (options.job as string | undefined) ?? null,
           description: (options.description as string | undefined) ?? null,
           image_url,
-          fictional: options.fictional === true ? true : undefined,
+          is_fictional: options.fictional === true ? true : undefined,
           ...getLifeDateFields(options),
         }),
         format,

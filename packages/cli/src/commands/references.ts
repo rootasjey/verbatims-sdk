@@ -72,10 +72,8 @@ export function registerReferencesCommand(program: Command) {
       const { data } = await withSpinner('Creating reference', () =>
         client.references.create({
           name: name as string,
-          type: primaryType as string,
           primary_type: primaryType as string,
           description: options.description ?? null,
-          language: options.language,
           original_language: options.language,
           release_date: options.releaseDate ?? null,
           image_url,
@@ -102,9 +100,9 @@ export function registerReferencesCommand(program: Command) {
 
       const data_: Record<string, unknown> = {}
       if (options.name) data_.name = options.name
-      if (options.type !== undefined) { data_.type = options.type; data_.primary_type = options.type }
+      if (options.type !== undefined) data_.primary_type = options.type
       if (options.description !== undefined) data_.description = options.description || null
-      if (options.language !== undefined) data_.language = options.language || null
+      if (options.language !== undefined) data_.original_language = options.language || null
       if (options.releaseDate !== undefined) data_.release_date = options.releaseDate || null
       if (options.imageUrl !== undefined) data_.image_url = options.imageUrl || null
       const updateImagePath = options.imagePath
